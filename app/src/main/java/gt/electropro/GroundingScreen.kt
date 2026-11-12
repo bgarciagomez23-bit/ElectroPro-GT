@@ -12,6 +12,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import gt.electropro.domain.calculations.GroundingConductorChecker
+import gt.electropro.domain.calculations.GroundingConductorResult
+import gt.electropro.domain.calculations.GroundGridGeometryCalculator
+import gt.electropro.domain.calculations.GroundGridGeometryResult
 import gt.electropro.domain.calculations.SoilResistivityCalculator
 import java.util.Locale
 
@@ -24,8 +27,15 @@ fun GroundingScreen(onBack: () -> Unit) {
     var time by remember { mutableStateOf("1") }
     var k by remember { mutableStateOf("226") }
     var area by remember { mutableStateOf("50") }
+    var gridX by remember { mutableStateOf("20") }
+    var gridY by remember { mutableStateOf("10") }
+    var gridSpacingX by remember { mutableStateOf("5") }
+    var gridSpacingY by remember { mutableStateOf("5") }
+    var rodCount by remember { mutableStateOf("4") }
+    var rodLength by remember { mutableStateOf("3") }
     var resistivity by remember { mutableStateOf<Double?>(null) }
-    var conductorResult by remember { mutableStateOf<gt.electropro.domain.calculations.GroundingConductorResult?>(null) }
+    var conductorResult by remember { mutableStateOf<GroundingConductorResult?>(null) }
+    var geometryResult by remember { mutableStateOf<GroundGridGeometryResult?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -42,6 +52,34 @@ fun GroundingScreen(onBack: () -> Unit) {
             } catch (e: Exception) { resistivity = null; error = e.message ?: "Revisa los datos." }
         }, modifier = Modifier.fillMaxWidth()) { Text("Calcular resistividad") }
         resistivity?.let { Text("Resistividad aparente: ${groundFmt(it)} Ω·m") }
+
+        HorizontalDivider()
+        Text("Geometría preliminar de malla", fontWeight = FontWeight.SemiBold)
+        Text("Cuantificación geométrica rectangular; no es una verificación de seguridad IEEE 80.", fontSize = 11.sp)
+        GroundField(gridX, { gridX = it }, "Dimensión X (m)")
+        GroundField(gridY, { gridY = it }, "Dimensión Y (m)")
+        GroundField(gridSpacingX, { gridSpacingX = it }, "Separación de conductores X (m)")
+        GroundField(gridSpacingY, { gridSpacingY = it }, "Separación de conductores Y (m)")
+        GroundField(rodCount, { rodCount = it }, "Cantidad de varillas")
+        GroundField(rodLength, { rodLength = it }, "Longitud por varilla (m)")
+        Button(onClick = {
+            try {
+                geometryResult = GroundGridGeometryCalculator.calculate(
+                    gridX.toDouble(), gridY.toDouble(), gridSpacingX.toDouble(), gridSpacingY.toDouble(),
+                    rodCount.toInt(), rodLength.toDouble()
+                )
+                error = null
+            } catch (e: Exception) { geometryResult = null; error = e.message ?: "Revisa los datos." }
+        }, modifier = Modifier.fillMaxWidth()) { Text("Cuantificar geometría") }
+        geometryResult?.let {
+            Text("Conductores paralelos a X: ${it.conductorsParallelToX}")
+            Text("Conductores paralelos a Y: ${it.conductorsParallelToY}")
+            Text("Intersecciones estimadas: ${it.intersectionCount}")
+            Text("Longitud horizontal: ${groundFmt(it.totalHorizontalConductorLengthM)} m")
+            Text("Longitud perimetral: ${groundFmt(it.perimeterConductorLengthM)} m")
+            Text("Longitud total de varillas: ${groundFmt(it.totalRodLengthM)} m")
+            Text("Total preliminar enterrado: ${groundFmt(it.totalBuriedConductorLengthM)} m", fontWeight = FontWeight.Bold)
+        }
 
         HorizontalDivider()
         Text("Verificación térmica preliminar del conductor", fontWeight = FontWeight.SemiBold)
@@ -61,7 +99,7 @@ fun GroundingScreen(onBack: () -> Unit) {
                 color = if (it.passes) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        Text("IMPORTANTE: resistividad Wenner es aparente para el espaciamiento medido y no determina por sí sola el modelo estratificado del suelo. La ecuación adiabática requiere k validado para material y temperaturas; esto no calcula malla IEEE 80, tensiones de paso/contacto, GPR, geometría, reparto de corriente ni cumplimiento normativo. Requiere estudio de ingeniería y datos de campo.", fontSize = 11.sp)
+        Text("ALCANCE Y SEGURIDAD: el cálculo geométrico solo estima cantidades para una malla rectangular uniforme y supone conductores en ambos límites. No calcula resistencia de malla, GPR, reparto de corriente, tensiones de paso/contacto ni cumplimiento IEEE 80. Se requiere modelo de suelo estratificado, corriente simétrica y asimétrica, factor de decremento, tiempo de despeje, capa superficial, geometría real y evaluación de seguridad. La resistividad Wenner es aparente para el espaciamiento medido. El factor k debe validarse para material y temperaturas.", fontSize = 11.sp)
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Volver") }
     }
 }
