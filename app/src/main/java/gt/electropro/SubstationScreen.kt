@@ -46,6 +46,7 @@ fun SubstationScreen(onBack: () -> Unit) {
     val visibleAssets = assets.filter { filterSubstationId == null || it.substationId == filterSubstationId }
     var error by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
+    var editingAssetId by remember { mutableStateOf<Long?>(null) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("ELECTROPRO GT", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
@@ -100,25 +101,33 @@ fun SubstationScreen(onBack: () -> Unit) {
                     saving = true
                     scope.launch {
                         try {
-                            if (dao.countByTag(asset.tag) > 0) {
-                                error = "Ya existe un equipo con ese código/tag."
+                            val currentEditId = editingAssetId
+                            val duplicateCount = if (currentEditId == null) dao.countByTag(asset.tag)
+                                else dao.countByTagExceptId(asset.tag, currentEditId)
+                            if (duplicateCount > 0) {
+                                error = "Ya existe otro equipo con ese código/tag."
                             } else {
-                                dao.insert(
-                                    SubstationAssetEntity(
-                                        tag = asset.tag,
-                                        name = asset.name,
-                                        type = asset.type.name,
-                                        ratedVoltageV = asset.ratedVoltageV,
-                                        ratedCurrentA = asset.ratedCurrentA,
-                                        ratedPowerKva = asset.ratedPowerKva,
-                                        shortCircuitRatingKA = asset.shortCircuitRatingKA,
-                                        location = asset.location,
-                                        notes = asset.notes,
-                                        substationId = selectedSubstationId
-                                    )
+                                val existing = assets.firstOrNull { it.id == currentEditId }
+                                val record = SubstationAssetEntity(
+                                    id = currentEditId ?: 0L,
+                                    tag = asset.tag,
+                                    name = asset.name,
+                                    type = asset.type.name,
+                                    ratedVoltageV = asset.ratedVoltageV,
+                                    ratedCurrentA = asset.ratedCurrentA,
+                                    ratedPowerKva = asset.ratedPowerKva,
+                                    shortCircuitRatingKA = asset.shortCircuitRatingKA,
+                                    location = asset.location,
+                                    notes = asset.notes,
+                                    createdAtEpochMs = existing?.createdAtEpochMs ?: System.currentTimeMillis(),
+                                    substationId = selectedSubstationId
                                 )
+                                if (currentEditId == null) dao.insert(record) else dao.update(record)
                                 tag = ""; name = ""; voltage = ""; current = ""; power = ""; shortCircuit = ""
-                                location = ""; notes = ""; selectedSubstationId = null; error = null
+                                location = ""; notes = ""; selectedSubstationId = null
+                                type = SubstationAssetType.TRANSFORMER
+                                editingAssetId = null
+                                error = null
                             }
                         } catch (e: Exception) {
                             error = "No se pudo guardar el equipo. Verifica que el código sea único."
@@ -131,7 +140,7 @@ fun SubstationScreen(onBack: () -> Unit) {
                 error = "Revisa la tensión y los valores numéricos ingresados."
             }
         }, modifier = Modifier.fillMaxWidth()) {
-            Text(if (saving) "Guardando..." else "Guardar equipo")
+            Text(if (saving) "Guardando..." else if (editingAssetId != null) "Actualizar equipo" else "Guardar equipo")
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
         HorizontalDivider()
@@ -163,8 +172,24 @@ fun SubstationScreen(onBack: () -> Unit) {
                     asset.shortCircuitRatingKA?.let { Text("Capacidad de cortocircuito: ${it} kA") }
                     if (asset.location.isNotBlank()) Text("Ubicación: ${asset.location}")
                     if (asset.notes.isNotBlank()) Text("Notas: ${asset.notes}")
-                    TextButton(onClick = { scope.launch { dao.deleteById(asset.id) } }) {
-                        Text("Eliminar registro", color = MaterialTheme.colorScheme.error)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick = {
+                            editingAssetId = asset.id
+                            tag = asset.tag
+                            name = asset.name
+                            type = runCatching { SubstationAssetType.valueOf(asset.type) }.getOrDefault(SubstationAssetType.TRANSFORMER)
+                            voltage = asset.ratedVoltageV.toString()
+                            current = asset.ratedCurrentA?.toString() ?: ""
+                            power = asset.ratedPowerKva?.toString() ?: ""
+                            shortCircuit = asset.shortCircuitRatingKA?.toString() ?: ""
+                            location = asset.location
+                            notes = asset.notes
+                            selectedSubstationId = asset.substationId
+                            error = null
+                        }) { Text("Editar") }
+                        TextButton(onClick = { scope.launch { dao.deleteById(asset.id) } }) {
+                            Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                        }
                     }
                 }
             }
