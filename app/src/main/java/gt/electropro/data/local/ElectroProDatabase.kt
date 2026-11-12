@@ -165,7 +165,28 @@ abstract class ElectroProDatabase : RoomDatabase() {
                 """.trimIndent())
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_substations_projectId ON substations(projectId)")
                 db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_substations_code ON substations(code)")
-                db.execSQL("ALTER TABLE substation_assets ADD COLUMN substationId INTEGER")
+                db.execSQL("""
+                    CREATE TABLE substation_assets_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        tag TEXT NOT NULL, name TEXT NOT NULL, type TEXT NOT NULL,
+                        ratedVoltageV REAL NOT NULL, ratedCurrentA REAL, ratedPowerKva REAL,
+                        shortCircuitRatingKA REAL, location TEXT NOT NULL, notes TEXT NOT NULL,
+                        createdAtEpochMs INTEGER NOT NULL, substationId INTEGER,
+                        FOREIGN KEY(substationId) REFERENCES substations(id)
+                        ON UPDATE NO ACTION ON DELETE SET NULL
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    INSERT INTO substation_assets_new (
+                        id, tag, name, type, ratedVoltageV, ratedCurrentA, ratedPowerKva,
+                        shortCircuitRatingKA, location, notes, createdAtEpochMs, substationId
+                    )
+                    SELECT id, tag, name, type, ratedVoltageV, ratedCurrentA, ratedPowerKva,
+                        shortCircuitRatingKA, location, notes, createdAtEpochMs, NULL
+                    FROM substation_assets
+                """.trimIndent())
+                db.execSQL("DROP TABLE substation_assets")
+                db.execSQL("ALTER TABLE substation_assets_new RENAME TO substation_assets")
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_substation_assets_substationId ON substation_assets(substationId)")
             }
         }
