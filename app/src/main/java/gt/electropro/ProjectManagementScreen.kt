@@ -21,6 +21,7 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val projects by db.projectDao().observeAll().collectAsState(initial = emptyList())
     val substations by db.substationDao().observeAll().collectAsState(initial = emptyList())
+    val assets by db.substationAssetDao().observeAll().collectAsState(initial = emptyList())
 
     var projectCode by remember { mutableStateOf("") }
     var projectName by remember { mutableStateOf("") }
@@ -124,7 +125,7 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                     Text("Proyecto: ${projects.firstOrNull { it.id == s.projectId }?.name ?: "Sin proyecto"}")
                     s.nominalVoltageV?.let { Text("Tensión nominal: $it V") }
                     if(s.location.isNotBlank()) Text("Ubicación: ${s.location}")
-                    Text("Equipos: ${db.substationAssetDao().observeAll().collectAsState(initial=emptyList()).value.count { it.substationId == s.id }}")
+                    Text("Equipos: ${assets.count { it.substationId == s.id }}")
                     TextButton(onClick={scope.launch { db.substationDao().deleteById(s.id) }}) { Text("Eliminar subestación (conserva equipos sin asociación)", color=MaterialTheme.colorScheme.error) }
                 }
             }
