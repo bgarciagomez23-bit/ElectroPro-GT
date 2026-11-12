@@ -17,6 +17,7 @@ import gt.electropro.domain.calculations.SystemPhase
 import gt.electropro.domain.calculations.VoltageDropCalculator
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoltageDropScreen(onBack: () -> Unit) {
     var phase by remember { mutableStateOf(SystemPhase.THREE_PHASE) }
