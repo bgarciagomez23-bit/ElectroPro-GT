@@ -95,6 +95,36 @@ data class ThermographyRecordEntity(
     val finding: String, val photoUri: String?, val createdAtEpochMs: Long = System.currentTimeMillis()
 )
 
+@Entity(tableName = "electrical_test_records")
+data class ElectricalTestRecordEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val projectCode: String,
+    val testDate: String,
+    val equipmentTag: String,
+    val testType: String,
+    val testVoltageV: Double?,
+    val durationSeconds: Double?,
+    val measuredValue: Double,
+    val unit: String,
+    val ambientTemperatureC: Double?,
+    val result: String,
+    val notes: String,
+    val photoUri: String?,
+    val createdAtEpochMs: Long = System.currentTimeMillis()
+)
+
+@Dao
+interface ElectricalTestRecordDao {
+    @Query("SELECT * FROM electrical_test_records ORDER BY createdAtEpochMs DESC, id DESC")
+    fun observeAll(): Flow<List<ElectricalTestRecordEntity>>
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(record: ElectricalTestRecordEntity)
+    @Update
+    suspend fun update(record: ElectricalTestRecordEntity)
+    @Query("DELETE FROM electrical_test_records WHERE id = :id")
+    suspend fun deleteById(id: Long)
+}
+
 @Dao
 interface InspectionRecordDao {
     @Query("SELECT * FROM inspection_records ORDER BY createdAtEpochMs DESC, id DESC")
@@ -192,8 +222,8 @@ interface SubstationAssetDao {
 }
 
 @Database(
-    entities = [ProjectEntity::class, SubstationEntity::class, SubstationAssetEntity::class, InspectionRecordEntity::class, ThermographyRecordEntity::class],
-    version = 3,
+    entities = [ProjectEntity::class, SubstationEntity::class, SubstationAssetEntity::class, InspectionRecordEntity::class, ThermographyRecordEntity::class, ElectricalTestRecordEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class ElectroProDatabase : RoomDatabase() {
@@ -202,6 +232,7 @@ abstract class ElectroProDatabase : RoomDatabase() {
     abstract fun substationAssetDao(): SubstationAssetDao
     abstract fun inspectionRecordDao(): InspectionRecordDao
     abstract fun thermographyRecordDao(): ThermographyRecordDao
+    abstract fun electricalTestRecordDao(): ElectricalTestRecordDao
 
     companion object {
         @Volatile private var INSTANCE: ElectroProDatabase? = null
@@ -262,13 +293,20 @@ abstract class ElectroProDatabase : RoomDatabase() {
             }
         }
 
+
+        internal val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS electrical_test_records (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, projectCode TEXT NOT NULL, testDate TEXT NOT NULL, equipmentTag TEXT NOT NULL, testType TEXT NOT NULL, testVoltageV REAL, durationSeconds REAL, measuredValue REAL NOT NULL, unit TEXT NOT NULL, ambientTemperatureC REAL, result TEXT NOT NULL, notes TEXT NOT NULL, photoUri TEXT, createdAtEpochMs INTEGER NOT NULL)")
+            }
+        }
+
         fun getInstance(context: Context): ElectroProDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     ElectroProDatabase::class.java,
                     "electropro_gt.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build().also { INSTANCE = it }
             }
     }
 }
