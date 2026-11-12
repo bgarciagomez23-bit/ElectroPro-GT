@@ -63,7 +63,7 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                     finally { saving=false }
                 }
             }
-        }, Modifier.fillMaxWidth()) { Text("Guardar proyecto") }
+        }, modifier = Modifier.fillMaxWidth()) { Text("Guardar proyecto") }
 
         HorizontalDivider()
         Text("REGISTRAR SUBESTACIÓN", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
@@ -102,7 +102,7 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                     finally { saving=false }
                 }
             }
-        }, Modifier.fillMaxWidth()) { Text("Guardar subestación") }
+        }, modifier = Modifier.fillMaxWidth()) { Text("Guardar subestación") }
         message?.let { Text(it, color=if(it.contains("correctamente")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, fontSize=12.sp) }
         HorizontalDivider()
         Text("PROYECTOS REGISTRADOS: ${projects.size}", fontWeight=FontWeight.SemiBold)
