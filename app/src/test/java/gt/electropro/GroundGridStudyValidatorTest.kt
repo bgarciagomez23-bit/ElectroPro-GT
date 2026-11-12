@@ -2,6 +2,7 @@ package gt.electropro
 
 import gt.electropro.domain.calculations.GroundGridStudyInputs
 import gt.electropro.domain.calculations.GroundGridStudyValidator
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
