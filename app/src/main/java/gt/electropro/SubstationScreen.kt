@@ -41,6 +41,9 @@ fun SubstationScreen(onBack: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var substationExpanded by remember { mutableStateOf(false) }
     var selectedSubstationId by remember { mutableStateOf<Long?>(null) }
+    var filterSubstationId by remember { mutableStateOf<Long?>(null) }
+    var filterExpanded by remember { mutableStateOf(false) }
+    val visibleAssets = assets.filter { filterSubstationId == null || it.substationId == filterSubstationId }
     var error by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
 
@@ -132,8 +135,25 @@ fun SubstationScreen(onBack: () -> Unit) {
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
         HorizontalDivider()
-        Text("Equipos registrados: ${assets.size}", fontWeight = FontWeight.SemiBold)
-        assets.forEach { asset ->
+        Text("FILTRAR INVENTARIO", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+        ExposedDropdownMenuBox(expanded = filterExpanded, onExpandedChange = { filterExpanded = it }) {
+            OutlinedTextField(
+                value = if (filterSubstationId == null) "Todas las subestaciones" else substations.firstOrNull { it.id == filterSubstationId }?.let { "${it.code} · ${it.name}" } ?: "Todas las subestaciones",
+                onValueChange = {}, readOnly = true, label = { Text("Mostrar equipos de") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(filterExpanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor()
+            )
+            ExposedDropdownMenu(expanded = filterExpanded, onDismissRequest = { filterExpanded = false }) {
+                DropdownMenuItem(text = { Text("Todas las subestaciones") }, onClick = { filterSubstationId = null; filterExpanded = false })
+                substations.forEach { station ->
+                    DropdownMenuItem(text = { Text("${station.code} · ${station.name}") }, onClick = { filterSubstationId = station.id; filterExpanded = false })
+                }
+                DropdownMenuItem(text = { Text("Sin subestación asignada") }, onClick = { filterSubstationId = -1L; filterExpanded = false })
+            }
+        }
+        val filteredAssets = if (filterSubstationId == -1L) assets.filter { it.substationId == null } else visibleAssets
+        Text("Equipos mostrados: ${filteredAssets.size} de ${assets.size}", fontWeight = FontWeight.SemiBold)
+        filteredAssets.forEach { asset ->
             Card {
                 Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("${asset.tag} · ${asset.name}", fontWeight = FontWeight.SemiBold)
