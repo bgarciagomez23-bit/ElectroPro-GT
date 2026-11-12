@@ -88,6 +88,8 @@ fun ElectroProApp() {
                 ThermographyScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Pruebas eléctricas") {
                 ElectricalTestsScreen(onBack = { selected = "Inicio" })
+            } else if (selected == "Informes") {
+                ReportsScreen(onBack = { selected = "Inicio" })
             } else {
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)) {
                 Spacer(Modifier.height(18.dp))
