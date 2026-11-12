@@ -80,6 +80,8 @@ fun ElectroProApp() {
                 TransformerScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Subestaciones") {
                 SubstationScreen(onBack = { selected = "Inicio" })
+            } else if (selected == "Proyectos") {
+                ProjectManagementScreen(onBack = { selected = "Inicio" })
             } else {
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)) {
                 Spacer(Modifier.height(18.dp))
