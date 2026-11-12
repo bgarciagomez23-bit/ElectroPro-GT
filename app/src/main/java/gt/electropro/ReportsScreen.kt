@@ -35,17 +35,21 @@ fun ReportsScreen(onBack: () -> Unit) {
     val pdfLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
         val bytes = pdfBytes
         if (uri != null && bytes != null) {
-            runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } }
-                .onSuccess { message = "Informe PDF exportado." }
-                .onFailure { message = "No fue posible guardar el PDF." }
+            runCatching {
+                val stream = requireNotNull(context.contentResolver.openOutputStream(uri)) { "No se pudo abrir el destino PDF." }
+                stream.use { it.write(bytes); it.flush() }
+            }.onSuccess { message = "Informe PDF exportado." }
+                .onFailure { message = "No fue posible guardar el PDF: ${it.localizedMessage ?: "error de escritura"}" }
         }
     }
     val csvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         val bytes = csvBytes
         if (uri != null && bytes != null) {
-            runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } }
-                .onSuccess { message = "Archivo CSV compatible con Excel exportado." }
-                .onFailure { message = "No fue posible guardar el CSV." }
+            runCatching {
+                val stream = requireNotNull(context.contentResolver.openOutputStream(uri)) { "No se pudo abrir el destino CSV." }
+                stream.use { it.write(bytes); it.flush() }
+            }.onSuccess { message = "Archivo CSV compatible con Excel exportado." }
+                .onFailure { message = "No fue posible guardar el CSV: ${it.localizedMessage ?: "error de escritura"}" }
         }
     }
 
