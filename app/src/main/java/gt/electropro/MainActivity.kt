@@ -37,7 +37,7 @@ fun ElectroProApp() {
         ModuleItem("Conductores", "Caída de tensión", "〰"),
         ModuleItem("Ampacidad", "Corrección y ajuste de conductores", "A"),
         ModuleItem("Protecciones", "Breaker y capacidad interruptiva", "▣"),
-        ModuleItem("Puesta a tierra", "Resistividad y mallas", "⌁"),
+        ModuleItem("Puesta a tierra", "Resistividad y conductor", "⌁"),
         ModuleItem("Transformadores", "Capacidad y cortocircuito", "◈"),
         ModuleItem("Subestaciones", "Equipos y alimentadores", "▤"),
         ModuleItem("Inspecciones", "Hallazgos y fotografías", "✓"),
@@ -74,6 +74,8 @@ fun ElectroProApp() {
                 AmpacityScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Protecciones") {
                 ProtectionScreen(onBack = { selected = "Inicio" })
+            } else if (selected == "Puesta a tierra") {
+                GroundingScreen(onBack = { selected = "Inicio" })
             } else {
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)) {
                 Spacer(Modifier.height(18.dp))
