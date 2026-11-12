@@ -85,6 +85,12 @@ interface ProjectDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(project: ProjectEntity): Long
 
+    @Update
+    suspend fun update(project: ProjectEntity)
+
+    @Query("SELECT COUNT(*) FROM projects WHERE LOWER(code) = LOWER(:code) AND id != :projectId")
+    suspend fun countByCodeExceptId(code: String, projectId: Long): Int
+
     @Query("SELECT COUNT(*) FROM projects WHERE LOWER(code) = LOWER(:code)")
     suspend fun countByCode(code: String): Int
 
@@ -102,6 +108,12 @@ interface SubstationDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(substation: SubstationEntity): Long
+
+    @Update
+    suspend fun update(substation: SubstationEntity)
+
+    @Query("SELECT COUNT(*) FROM substations WHERE LOWER(code) = LOWER(:code) AND id != :substationId")
+    suspend fun countByCodeExceptId(code: String, substationId: Long): Int
 
     @Query("SELECT COUNT(*) FROM substations WHERE LOWER(code) = LOWER(:code)")
     suspend fun countByCode(code: String): Int
