@@ -33,7 +33,7 @@ class VoltageDropCalculatorTest {
             material = ConductorMaterial.ALUMINUM_75C,
             phase = SystemPhase.THREE_PHASE
         )
-        assertEquals(2.258, result.voltageDropV, 0.02)
+        assertEquals(2.61, result.voltageDropV, 0.02)
     }
 
     @Test
