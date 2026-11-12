@@ -65,6 +65,9 @@ fun ElectroProApp() {
                 }
             }
         ) { padding ->
+            if (selected == "Cálculos eléctricos") {
+                ElectricalCalculatorScreen(onBack = { selected = "Inicio" })
+            } else {
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)) {
                 Spacer(Modifier.height(18.dp))
                 Text("ELECTROPRO GT", color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -106,6 +109,7 @@ fun ElectroProApp() {
                         }
                     }
                 }
+            }
             }
         }
     }
