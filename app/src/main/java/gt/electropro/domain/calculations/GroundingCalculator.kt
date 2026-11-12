@@ -11,13 +11,15 @@ object SoilResistivityCalculator {
         require(spacingM.isFinite() && spacingM > 0.0)
         require(measuredResistanceOhm.isFinite() && measuredResistanceOhm > 0.0)
         require(probeDepthM.isFinite() && probeDepthM >= 0.0)
-        val correction = if (probeDepthM == 0.0) 1.0 else {
-            val a = spacingM
-            val b = probeDepthM
-            (2.0 * a / (a + 2.0 * b)) -
-                (a / (2.0 * a + 2.0 * b))
+        val a = spacingM
+        val b = probeDepthM
+        val geometricFactor = if (b == 0.0) {
+            2.0
+        } else {
+            1.0 + (2.0 * a / kotlin.math.sqrt(a * a + 4.0 * b * b)) -
+                (2.0 * a / kotlin.math.sqrt(4.0 * a * a + 4.0 * b * b))
         }
-        val rho = 2.0 * Math.PI * spacingM * measuredResistanceOhm / correction
+        val rho = 4.0 * Math.PI * spacingM * measuredResistanceOhm / geometricFactor
         return SoilResistivityResult(rho, "Wenner cuatro puntos")
     }
 }
