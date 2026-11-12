@@ -23,7 +23,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SubstationScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val dao = remember { ElectroProDatabase.getInstance(context).substationAssetDao() }
+    val database = remember { ElectroProDatabase.getInstance(context) }
+    val dao = database.substationAssetDao()
+    val substations by database.substationDao().observeAll().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     val assets by dao.observeAll().collectAsState(initial = emptyList())
 
@@ -37,6 +39,8 @@ fun SubstationScreen(onBack: () -> Unit) {
     var notes by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(SubstationAssetType.TRANSFORMER) }
     var expanded by remember { mutableStateOf(false) }
+    var substationExpanded by remember { mutableStateOf(false) }
+    var selectedSubstationId by remember { mutableStateOf<Long?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
 
@@ -44,6 +48,20 @@ fun SubstationScreen(onBack: () -> Unit) {
         Text("ELECTROPRO GT", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
         Text("Inventario de subestación", fontSize = 23.sp, fontWeight = FontWeight.Bold)
         Text("Inventario local persistente: los equipos se conservan al cerrar la aplicación.", fontSize = 12.sp)
+        ExposedDropdownMenuBox(expanded = substationExpanded, onExpandedChange = { substationExpanded = it }) {
+            OutlinedTextField(
+                value = substations.firstOrNull { it.id == selectedSubstationId }?.let { "${it.code} · ${it.name}" } ?: "Sin subestación asignada",
+                onValueChange = {}, readOnly = true, label = { Text("Subestación del equipo") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(substationExpanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor()
+            )
+            ExposedDropdownMenu(expanded = substationExpanded, onDismissRequest = { substationExpanded = false }) {
+                DropdownMenuItem(text = { Text("Sin subestación asignada") }, onClick = { selectedSubstationId = null; substationExpanded = false })
+                substations.forEach { station ->
+                    DropdownMenuItem(text = { Text("${station.code} · ${station.name}") }, onClick = { selectedSubstationId = station.id; substationExpanded = false })
+                }
+            }
+        }
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(value = type.label, onValueChange = {}, readOnly = true, label = { Text("Tipo de equipo") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
@@ -92,11 +110,12 @@ fun SubstationScreen(onBack: () -> Unit) {
                                         ratedPowerKva = asset.ratedPowerKva,
                                         shortCircuitRatingKA = asset.shortCircuitRatingKA,
                                         location = asset.location,
-                                        notes = asset.notes
+                                        notes = asset.notes,
+                                        substationId = selectedSubstationId
                                     )
                                 )
                                 tag = ""; name = ""; voltage = ""; current = ""; power = ""; shortCircuit = ""
-                                location = ""; notes = ""; error = null
+                                location = ""; notes = ""; selectedSubstationId = null; error = null
                             }
                         } catch (e: Exception) {
                             error = "No se pudo guardar el equipo. Verifica que el código sea único."
@@ -119,6 +138,7 @@ fun SubstationScreen(onBack: () -> Unit) {
                 Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("${asset.tag} · ${asset.name}", fontWeight = FontWeight.SemiBold)
                     Text("${SubstationAssetType.valueOf(asset.type).label} | ${asset.ratedVoltageV} V")
+                    Text("Subestación: ${substations.firstOrNull { it.id == asset.substationId }?.name ?: "Sin asignar"}")
                     Text("In: ${asset.ratedCurrentA?.let { "${it} A" } ?: "No indicado"} · Potencia: ${asset.ratedPowerKva?.let { "${it} kVA" } ?: "No indicada"}")
                     asset.shortCircuitRatingKA?.let { Text("Capacidad de cortocircuito: ${it} kA") }
                     if (asset.location.isNotBlank()) Text("Ubicación: ${asset.location}")
@@ -129,7 +149,7 @@ fun SubstationScreen(onBack: () -> Unit) {
                 }
             }
         }
-        Text("IMPORTANTE: el inventario no verifica coordinación, capacidad interruptiva, aislamiento, niveles BIL, compatibilidad de barras ni cumplimiento normativo. Confirma los datos contra placas, planos y pruebas de campo. La base de datos es local en este dispositivo; la sincronización en nube y la asociación formal a proyectos se implementarán después.", fontSize = 11.sp)
+        Text("IMPORTANTE: el inventario no verifica coordinación, capacidad interruptiva, aislamiento, niveles BIL, compatibilidad de barras ni cumplimiento normativo. Confirma los datos contra placas, planos y pruebas de campo. La base de datos es local en este dispositivo; la sincronización en nube aún no está habilitada.", fontSize = 11.sp)
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Volver") }
     }
 }
