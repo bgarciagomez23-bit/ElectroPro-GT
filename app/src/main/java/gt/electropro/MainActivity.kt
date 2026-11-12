@@ -36,7 +36,7 @@ fun ElectroProApp() {
         ModuleItem("Cálculos eléctricos", "Corriente, potencia y demanda", "⚡"),
         ModuleItem("Conductores", "Caída de tensión", "〰"),
         ModuleItem("Ampacidad", "Corrección y ajuste de conductores", "A"),
-        ModuleItem("Protecciones", "Interruptores y coordinación", "▣"),
+        ModuleItem("Protecciones", "Breaker y capacidad interruptiva", "▣"),
         ModuleItem("Puesta a tierra", "Resistividad y mallas", "⌁"),
         ModuleItem("Transformadores", "Capacidad y cortocircuito", "◈"),
         ModuleItem("Subestaciones", "Equipos y alimentadores", "▤"),
@@ -72,6 +72,8 @@ fun ElectroProApp() {
                 VoltageDropScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Ampacidad") {
                 AmpacityScreen(onBack = { selected = "Inicio" })
+            } else if (selected == "Protecciones") {
+                ProtectionScreen(onBack = { selected = "Inicio" })
             } else {
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)) {
                 Spacer(Modifier.height(18.dp))
