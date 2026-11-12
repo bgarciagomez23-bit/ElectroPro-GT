@@ -77,6 +77,49 @@ data class SubstationAssetEntity(
     val substationId: Long? = null
 )
 
+@Entity(tableName = "inspection_records")
+data class InspectionRecordEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val projectCode: String, val inspectionDate: String, val inspector: String,
+    val systemArea: String, val finding: String, val severity: String,
+    val status: String, val correctiveAction: String, val photoUri: String?,
+    val createdAtEpochMs: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "inspection_records")
+@Entity(tableName = "thermography_records")
+data class ThermographyRecordEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val inspectionDate: String, val equipmentTag: String, val location: String,
+    val phase: String, val measuredTemperatureC: Double, val referenceTemperatureC: Double?,
+    val ambientTemperatureC: Double?, val loadPercent: Double?, val severity: String,
+    val finding: String, val photoUri: String?, val createdAtEpochMs: Long = System.currentTimeMillis()
+)
+
+@Dao
+interface InspectionRecordDao {
+    @Query("SELECT * FROM inspection_records ORDER BY createdAtEpochMs DESC, id DESC")
+    fun observeAll(): Flow<List<InspectionRecordEntity>>
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(record: InspectionRecordEntity)
+    @Update
+    suspend fun update(record: InspectionRecordEntity)
+    @Query("DELETE FROM inspection_records WHERE id = :id")
+    suspend fun deleteById(id: Long)
+}
+
+@Dao
+interface ThermographyRecordDao {
+    @Query("SELECT * FROM thermography_records ORDER BY createdAtEpochMs DESC, id DESC")
+    fun observeAll(): Flow<List<ThermographyRecordEntity>>
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(record: ThermographyRecordEntity)
+    @Update
+    suspend fun update(record: ThermographyRecordEntity)
+    @Query("DELETE FROM thermography_records WHERE id = :id")
+    suspend fun deleteById(id: Long)
+}
+
 @Dao
 interface ProjectDao {
     @Query("SELECT * FROM projects ORDER BY createdAtEpochMs DESC, id DESC")
@@ -150,14 +193,16 @@ interface SubstationAssetDao {
 }
 
 @Database(
-    entities = [ProjectEntity::class, SubstationEntity::class, SubstationAssetEntity::class],
-    version = 2,
+    entities = [ProjectEntity::class, SubstationEntity::class, SubstationAssetEntity::class, InspectionRecordEntity::class, ThermographyRecordEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class ElectroProDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
     abstract fun substationDao(): SubstationDao
     abstract fun substationAssetDao(): SubstationAssetDao
+    abstract fun inspectionRecordDao(): InspectionRecordDao
+    abstract fun thermographyRecordDao(): ThermographyRecordDao
 
     companion object {
         @Volatile private var INSTANCE: ElectroProDatabase? = null
@@ -210,13 +255,21 @@ abstract class ElectroProDatabase : RoomDatabase() {
             }
         }
 
+
+        internal val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS inspection_records (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, projectCode TEXT NOT NULL, inspectionDate TEXT NOT NULL, inspector TEXT NOT NULL, systemArea TEXT NOT NULL, finding TEXT NOT NULL, severity TEXT NOT NULL, status TEXT NOT NULL, correctiveAction TEXT NOT NULL, photoUri TEXT, createdAtEpochMs INTEGER NOT NULL)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS thermography_records (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, inspectionDate TEXT NOT NULL, equipmentTag TEXT NOT NULL, location TEXT NOT NULL, phase TEXT NOT NULL, measuredTemperatureC REAL NOT NULL, referenceTemperatureC REAL, ambientTemperatureC REAL, loadPercent REAL, severity TEXT NOT NULL, finding TEXT NOT NULL, photoUri TEXT, createdAtEpochMs INTEGER NOT NULL)")
+            }
+        }
+
         fun getInstance(context: Context): ElectroProDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     ElectroProDatabase::class.java,
                     "electropro_gt.db"
-                ).addMigrations(MIGRATION_1_2).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { INSTANCE = it }
             }
     }
 }
