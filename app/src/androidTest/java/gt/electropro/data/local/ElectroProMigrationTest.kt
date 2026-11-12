@@ -54,7 +54,11 @@ class ElectroProMigrationTest {
             context,
             ElectroProDatabase::class.java,
             databaseName
-        ).addMigrations(ElectroProDatabase.MIGRATION_1_2, ElectroProDatabase.MIGRATION_2_3).build()
+        ).addMigrations(
+            ElectroProDatabase.MIGRATION_1_2,
+            ElectroProDatabase.MIGRATION_2_3,
+            ElectroProDatabase.MIGRATION_3_4
+        ).build()
 
         try {
             val migrated = database.substationAssetDao().observeAll().first()
