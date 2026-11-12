@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import gt.electropro.domain.calculations.ConductorSizeCatalog
 import gt.electropro.domain.calculations.ConductorMaterial
 import gt.electropro.domain.calculations.SystemPhase
 import gt.electropro.domain.calculations.VoltageDropCalculator
@@ -24,6 +25,8 @@ fun VoltageDropScreen(onBack: () -> Unit) {
     var length by remember { mutableStateOf("100") }
     var voltage by remember { mutableStateOf("208") }
     var area by remember { mutableStateOf("41740") }
+    var selectedSize by remember { mutableStateOf("4 AWG") }
+    var sizeMenuExpanded by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var result by remember { mutableStateOf<gt.electropro.domain.calculations.VoltageDropResult?>(null) }
 
@@ -44,7 +47,30 @@ fun VoltageDropScreen(onBack: () -> Unit) {
         NumericField(current, { current = it; error = null }, "Corriente (A)")
         NumericField(length, { length = it; error = null }, "Longitud unidireccional (ft)")
         NumericField(voltage, { voltage = it; error = null }, "Tensión del sistema (V)")
-        NumericField(area, { area = it; error = null }, "Área del conductor (CM)")
+        ExposedDropdownMenuBox(expanded = sizeMenuExpanded, onExpandedChange = { sizeMenuExpanded = !sizeMenuExpanded }) {
+            OutlinedTextField(
+                value = selectedSize,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Calibre / tamaño estándar") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = sizeMenuExpanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
+            ExposedDropdownMenu(expanded = sizeMenuExpanded, onDismissRequest = { sizeMenuExpanded = false }) {
+                ConductorSizeCatalog.sizes.forEach { size ->
+                    DropdownMenuItem(
+                        text = { Text(size.designation) },
+                        onClick = {
+                            selectedSize = size.designation
+                            area = size.circularMils.toLong().toString()
+                            error = null
+                            sizeMenuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        NumericField(area, { area = it; error = null }, "Área del conductor (CM) — editable")
         Button(onClick = {
             try {
                 result = VoltageDropCalculator.calculate(
@@ -64,6 +90,8 @@ fun VoltageDropScreen(onBack: () -> Unit) {
                     Text("Caída: ${fmt(it.voltageDropV)} V")
                     Text("Caída porcentual: ${fmt(it.voltageDropPercent)} %")
                     Text("Tensión estimada al extremo: ${fmt(it.receivingVoltageV)} V")
+                    Text("Tamaño seleccionado: $selectedSize")
+                    Text("Área aplicada: $area CM")
                     Text("K aplicado: ${material.kOhmCircularMilsPerFoot} Ω·CM/ft")
                 }
             }
