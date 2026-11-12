@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import gt.electropro.data.local.*
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InspectionScreen(onBack: () -> Unit) {
     val context = LocalContext.current
@@ -93,6 +94,7 @@ fun InspectionScreen(onBack: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThermographyScreen(onBack: () -> Unit) {
     val context = LocalContext.current
@@ -194,6 +196,7 @@ private fun FieldInput(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FieldChoice(label: String, value: String, options: List<String>, onSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
