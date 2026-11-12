@@ -10,6 +10,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
@@ -119,6 +120,12 @@ interface SubstationAssetDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(asset: SubstationAssetEntity)
+
+    @Update
+    suspend fun update(asset: SubstationAssetEntity)
+
+    @Query("SELECT COUNT(*) FROM substation_assets WHERE LOWER(tag) = LOWER(:tag) AND id != :assetId")
+    suspend fun countByTagExceptId(tag: String, assetId: Long): Int
 
     @Query("SELECT COUNT(*) FROM substation_assets WHERE LOWER(tag) = LOWER(:tag)")
     suspend fun countByTag(tag: String): Int
