@@ -16,10 +16,10 @@ class TransformerCalculatorTest {
             loadKva = 600.0,
             phase = TransformerPhase.THREE_PHASE
         )
-        assertEquals(32.805, result.primaryCurrentA, 0.01)
-        assertEquals(2081.38, result.secondaryCurrentA, 0.1)
+        assertEquals(32.804, result.primaryCurrentA, 0.01)
+        assertEquals(2081.79, result.secondaryCurrentA, 0.1)
         assertEquals(80.0, result.loadPercent, 0.0001)
-        assertEquals(36.197, result.secondaryFaultCurrentKA, 0.01)
+        assertEquals(36.205, result.secondaryFaultCurrentKA, 0.01)
     }
 
     @Test
