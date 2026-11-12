@@ -37,11 +37,13 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
     var subNotes by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
+    var editingProjectId by remember { mutableStateOf<Long?>(null) }
+    var editingSubstationId by remember { mutableStateOf<Long?>(null) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("ELECTROPRO GT", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
         Text("Proyectos y subestaciones", fontSize = 23.sp, fontWeight = FontWeight.Bold)
-        Text("REGISTRAR PROYECTO", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+        Text(if (editingProjectId == null) "REGISTRAR PROYECTO" else "EDITAR PROYECTO", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
         OutlinedTextField(projectCode, { projectCode = it.uppercase(); message = null }, Modifier.fillMaxWidth(), label = { Text("Código del proyecto") }, singleLine = true)
         OutlinedTextField(projectName, { projectName = it; message = null }, Modifier.fillMaxWidth(), label = { Text("Nombre del proyecto") }, singleLine = true)
         OutlinedTextField(client, { client = it }, Modifier.fillMaxWidth(), label = { Text("Cliente") }, singleLine = true)
@@ -53,20 +55,31 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                 saving = true
                 scope.launch {
                     try {
-                        if (db.projectDao().countByCode(projectCode.trim()) > 0) message = "El código del proyecto ya existe."
+                        val editId = editingProjectId
+                        val duplicates = if (editId == null) db.projectDao().countByCode(projectCode.trim())
+                            else db.projectDao().countByCodeExceptId(projectCode.trim(), editId)
+                        if (duplicates > 0) message = "El código del proyecto ya existe."
                         else {
-                            db.projectDao().insert(ProjectEntity(code=projectCode.trim(), name=projectName.trim(), client=client.trim(), location=projectLocation.trim(), notes=projectNotes.trim()))
+                            val existing = projects.firstOrNull { it.id == editId }
+                            val record = ProjectEntity(
+                                id = editId ?: 0L, code = projectCode.trim(), name = projectName.trim(),
+                                client = client.trim(), location = projectLocation.trim(),
+                                status = existing?.status ?: "EN_PROCESO", notes = projectNotes.trim(),
+                                createdAtEpochMs = existing?.createdAtEpochMs ?: System.currentTimeMillis()
+                            )
+                            if (editId == null) db.projectDao().insert(record) else db.projectDao().update(record)
                             projectCode=""; projectName=""; client=""; projectLocation=""; projectNotes=""
-                            message="Proyecto guardado correctamente."
+                            editingProjectId = null
+                            message=if (editId == null) "Proyecto guardado correctamente." else "Proyecto actualizado correctamente."
                         }
                     } catch (e: Exception) { message="No se pudo guardar el proyecto." }
                     finally { saving=false }
                 }
             }
-        }, modifier = Modifier.fillMaxWidth()) { Text("Guardar proyecto") }
+        }, modifier = Modifier.fillMaxWidth()) { Text(if (editingProjectId == null) "Guardar proyecto" else "Actualizar proyecto") }
 
         HorizontalDivider()
-        Text("REGISTRAR SUBESTACIÓN", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+        Text(if (editingSubstationId == null) "REGISTRAR SUBESTACIÓN" else "EDITAR SUBESTACIÓN", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
         ExposedDropdownMenuBox(expanded=projectMenu, onExpandedChange={projectMenu=it}) {
             OutlinedTextField(
                 value=projects.firstOrNull { it.id == selectedProjectId }?.let { "${it.code} · ${it.name}" } ?: "Sin proyecto asociado",
@@ -92,17 +105,27 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                 saving=true
                 scope.launch {
                     try {
-                        if(db.substationDao().countByCode(subCode.trim())>0) message="El código de subestación ya existe."
+                        val editId = editingSubstationId
+                        val duplicates = if (editId == null) db.substationDao().countByCode(subCode.trim())
+                            else db.substationDao().countByCodeExceptId(subCode.trim(), editId)
+                        if(duplicates>0) message="El código de subestación ya existe."
                         else {
-                            db.substationDao().insert(SubstationEntity(projectId=selectedProjectId, code=subCode.trim(), name=subName.trim(), nominalVoltageV=v, location=subLocation.trim(), notes=subNotes.trim()))
+                            val existing = substations.firstOrNull { it.id == editId }
+                            val record = SubstationEntity(
+                                id=editId ?: 0L, projectId=selectedProjectId, code=subCode.trim(),
+                                name=subName.trim(), nominalVoltageV=v, location=subLocation.trim(),
+                                notes=subNotes.trim(), createdAtEpochMs=existing?.createdAtEpochMs ?: System.currentTimeMillis()
+                            )
+                            if (editId == null) db.substationDao().insert(record) else db.substationDao().update(record)
                             subCode=""; subName=""; subVoltage=""; subLocation=""; subNotes=""
-                            message="Subestación guardada correctamente."
+                            editingSubstationId = null
+                            message=if (editId == null) "Subestación guardada correctamente." else "Subestación actualizada correctamente."
                         }
                     } catch(e:Exception) { message="No se pudo guardar la subestación." }
                     finally { saving=false }
                 }
             }
-        }, modifier = Modifier.fillMaxWidth()) { Text("Guardar subestación") }
+        }, modifier = Modifier.fillMaxWidth()) { Text(if (editingSubstationId == null) "Guardar subestación" else "Actualizar subestación") }
         message?.let { Text(it, color=if(it.contains("correctamente")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, fontSize=12.sp) }
         HorizontalDivider()
         Text("PROYECTOS REGISTRADOS: ${projects.size}", fontWeight=FontWeight.SemiBold)
@@ -113,7 +136,17 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                     if(p.client.isNotBlank()) Text("Cliente: ${p.client}")
                     if(p.location.isNotBlank()) Text("Ubicación: ${p.location}")
                     Text("Subestaciones: ${substations.count { it.projectId == p.id }}")
-                    TextButton(onClick={scope.launch { db.projectDao().deleteById(p.id) }}) { Text("Eliminar proyecto (conserva subestaciones sin asociación)", color=MaterialTheme.colorScheme.error) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick={
+                            editingProjectId=p.id
+                            projectCode=p.code; projectName=p.name; client=p.client
+                            projectLocation=p.location; projectNotes=p.notes
+                            message=null
+                        }) { Text("Editar") }
+                        TextButton(onClick={scope.launch { db.projectDao().deleteById(p.id) }}) {
+                            Text("Eliminar", color=MaterialTheme.colorScheme.error)
+                        }
+                    }
                 }
             }
         }
@@ -126,7 +159,19 @@ fun ProjectManagementScreen(onBack: () -> Unit) {
                     s.nominalVoltageV?.let { Text("Tensión nominal: $it V") }
                     if(s.location.isNotBlank()) Text("Ubicación: ${s.location}")
                     Text("Equipos: ${assets.count { it.substationId == s.id }}")
-                    TextButton(onClick={scope.launch { db.substationDao().deleteById(s.id) }}) { Text("Eliminar subestación (conserva equipos sin asociación)", color=MaterialTheme.colorScheme.error) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick={
+                            editingSubstationId=s.id
+                            selectedProjectId=s.projectId
+                            subCode=s.code; subName=s.name
+                            subVoltage=s.nominalVoltageV?.toString() ?: ""
+                            subLocation=s.location; subNotes=s.notes
+                            message=null
+                        }) { Text("Editar") }
+                        TextButton(onClick={scope.launch { db.substationDao().deleteById(s.id) }}) {
+                            Text("Eliminar", color=MaterialTheme.colorScheme.error)
+                        }
+                    }
                 }
             }
         }
