@@ -86,7 +86,6 @@ data class InspectionRecordEntity(
     val createdAtEpochMs: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "inspection_records")
 @Entity(tableName = "thermography_records")
 data class ThermographyRecordEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
