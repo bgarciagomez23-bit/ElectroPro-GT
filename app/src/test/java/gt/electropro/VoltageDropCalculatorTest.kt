@@ -12,7 +12,7 @@ class VoltageDropCalculatorTest {
     fun singlePhaseCopperVoltageDrop() {
         val result = VoltageDropCalculator.calculate(
             currentA = 20.0,
-            oneWayLengthFt = 100.0,
+            oneWayLengthM = 30.48,
             systemVoltageV = 120.0,
             conductorAreaCircularMils = 41_740.0,
             material = ConductorMaterial.COPPER_75C,
@@ -27,7 +27,7 @@ class VoltageDropCalculatorTest {
     fun threePhaseAluminumVoltageDrop() {
         val result = VoltageDropCalculator.calculate(
             currentA = 50.0,
-            oneWayLengthFt = 150.0,
+            oneWayLengthM = 45.72,
             systemVoltageV = 480.0,
             conductorAreaCircularMils = 105_600.0,
             material = ConductorMaterial.ALUMINUM_75C,
@@ -40,7 +40,7 @@ class VoltageDropCalculatorTest {
     fun rejectsZeroConductorArea() {
         assertThrows(IllegalArgumentException::class.java) {
             VoltageDropCalculator.calculate(
-                20.0, 100.0, 120.0, 0.0,
+                20.0, 30.48, 120.0, 0.0,
                 ConductorMaterial.COPPER_75C, SystemPhase.SINGLE_PHASE
             )
         }
