@@ -30,6 +30,9 @@ body{background:#080e14}
 .tile-icon{width:54px;height:54px;border-radius:17px;background:#382919;color:var(--accent);display:grid;place-items:center;font-size:30px;font-weight:800}
 .calc-tile.selected .tile-icon{background:var(--accent);color:#101820}
 .calc-tile strong{font-size:18px}.calc-tile>span:last-child{font-size:15px;color:#aab5c0;font-weight:400}
+.conduit-row{display:grid;grid-template-columns:1.1fr 1.2fr .8fr auto;gap:10px;align-items:end;padding:12px;background:#0b151d;border:1px solid #263946;border-radius:14px;margin-top:10px}
+.conduit-row label{font-size:12px}.conduit-row button{padding:10px 13px}.conduit-rows{width:100%}
+@media(max-width:520px){.conduit-row{grid-template-columns:1fr 1fr}.conduit-row .field:first-child{grid-column:1/-1}}
 .workspace-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0 18px}.workspace-head span{font-weight:800;font-size:19px;flex:1}.save-result{background:var(--accent);color:#101820}
 .bottom-nav{position:fixed;z-index:20;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:60px;background:#080e14;border-top:2px solid #263946;padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
 .nav-item{background:transparent;color:#8794a1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 18px;font-size:13px}
@@ -195,9 +198,7 @@ body{background:#080e14}
 <p class="intro" style="margin:0 0 18px">Calcula el área ocupada por los conductores, el porcentaje de llenado y el tamaño comercial mínimo de canalización conforme a NEC Capítulo 9.</p>
 <div class="fields">
 <div class="field"><label for="conduitType">Tipo de canalización</label><select id="conduitType"><option value="emt">EMT</option><option value="pvc40">PVC cédula 40</option><option value="pvc80">PVC cédula 80</option><option value="rnc">RMC (conduit metálico rígido)</option></select></div>
-<div class="field"><label for="conductorIns">Tipo de conductor / aislamiento</label><select id="conductorIns"><option value="thhn">THHN / THWN-2</option><option value="xh">XHHW-2</option><option value="thw">THW / THW-LS</option></select></div>
-<div class="field"><label for="conduitGauge">Calibre del conductor</label><select id="conduitGauge"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="1/0">1/0 AWG</option><option value="2/0">2/0 AWG</option><option value="3/0">3/0 AWG</option><option value="4/0">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="400">400 kcmil</option><option value="500">500 kcmil</option></select></div>
-<div class="field"><label for="conduitCount">Cantidad de conductores</label><input id="conduitCount" type="number" min="1" max="500" step="1" value="4"><div class="hint">Incluye fases, neutro y conductor de puesta a tierra si va dentro de la canalización.</div></div>
+<div class="field full"><label>Conductores que se instalarán</label><div class="hint">Agrega una fila por cada tipo y calibre distinto. La cantidad corresponde al número de conductores de ese calibre.</div><div id="conduitRows" class="conduit-rows"></div><button type="button" class="secondary" id="addConduitRow" style="margin-top:10px">＋ Agregar calibre</button></div>
 <div class="field"><label for="conduitMode">Tipo de cálculo</label><select id="conduitMode"><option value="minimum">Encontrar tamaño mínimo</option><option value="check">Verificar tamaño seleccionado</option></select></div>
 <div class="field hidden" id="conduitSizeField"><label for="conduitSize">Tamaño comercial a verificar</label><select id="conduitSize"><option value="0">1/2"</option><option value="1">3/4"</option><option value="2">1"</option><option value="3">1-1/4"</option><option value="4">1-1/2"</option><option value="5">2"</option><option value="6">2-1/2"</option><option value="7">3"</option><option value="8">3-1/2"</option><option value="9">4"</option></select></div>
 </div>
@@ -397,31 +398,50 @@ const wireAreas={
 };
 function updateConduitMode(){$('conduitSizeField').classList.toggle('hidden',$('conduitMode').value!=='check');}
 $('conduitMode').addEventListener('change',updateConduitMode);
+let conduitRowId=0;
+function addConduitRow(ins='thhn',gauge='12',count='4'){
+ const id=++conduitRowId,row=document.createElement('div');row.className='conduit-row';row.dataset.row=id;
+ row.innerHTML='<div class="field"><label>Tipo de aislamiento</label><select class="wire-ins"><option value="thhn">THHN / THWN-2</option><option value="xh">XHHW-2</option><option value="thw">THW / THW-LS</option></select></div><div class="field"><label>Calibre</label><select class="wire-gauge">'+Object.entries({'14':'14 AWG','12':'12 AWG','10':'10 AWG','8':'8 AWG','6':'6 AWG','4':'4 AWG','3':'3 AWG','2':'2 AWG','1':'1 AWG','1/0':'1/0 AWG','2/0':'2/0 AWG','3/0':'3/0 AWG','4/0':'4/0 AWG','250':'250 kcmil','300':'300 kcmil','350':'350 kcmil','400':'400 kcmil','500':'500 kcmil'}).map(([v,l])=>'<option value="'+v+'">'+l+'</option>').join('')+'</select></div><div class="field"><label>Cantidad</label><input class="wire-count" type="number" min="1" max="500" step="1" value="'+count+'"></div><button type="button" class="secondary remove-wire" aria-label="Eliminar calibre">✕</button>';
+ row.querySelector('.wire-ins').value=ins;row.querySelector('.wire-gauge').value=gauge;
+ row.querySelectorAll('select,input').forEach(el=>el.addEventListener('change',calculateConduit));
+ row.querySelector('.remove-wire').addEventListener('click',()=>{row.remove();calculateConduit()});
+ $('conduitRows').appendChild(row);
+}
 function calculateConduit(){
- const type=$('conduitType').value,ins=$('conductorIns').value,gauge=$('conduitGauge').value,count=Number($('conduitCount').value);
- if(!Number.isInteger(count)||count<1||count>500||!wireAreas[ins][gauge]){
-  $('conduitStatus').textContent='Verifica la cantidad (1 a 500) y el calibre seleccionado.';$('conduitStatus').className='status warn';return;
+ const type=$('conduitType').value,rows=[...$('conduitRows').querySelectorAll('.conduit-row')];
+ if(!rows.length){$('conduitStatus').textContent='Agrega al menos un tipo de conductor.';$('conduitStatus').className='status warn';return;}
+ let total=0,count=0,summary=[];
+ for(const row of rows){
+  const ins=row.querySelector('.wire-ins').value,gauge=row.querySelector('.wire-gauge').value,n=Number(row.querySelector('.wire-count').value);
+  if(!Number.isInteger(n)||n<1||n>500||!wireAreas[ins][gauge]){
+   $('conduitStatus').textContent='Revisa las cantidades: cada fila debe tener entre 1 y 500 conductores.';$('conduitStatus').className='status warn';return;
+  }
+  const area=wireAreas[ins][gauge];total+=area*n;count+=n;
+  summary.push(n+' × '+gauge+(Number(gauge)>=250?' kcmil':' AWG')+' '+ins.toUpperCase());
  }
  const fill=count===1?0.53:count===2?0.31:0.40;
- const oneArea=wireAreas[ins][gauge],total=oneArea*count,capacity=conduitAreas[type].map(a=>a*fill);
- const mode=$('conduitMode').value;
- let idx;
- if(mode==='minimum')idx=capacity.findIndex(a=>a+1e-9>=total);
- else idx=Number($('conduitSize').value);
- if(idx<0||idx>=capacity.length){$('conduitWireArea').innerHTML=total.toFixed(4)+' <span class="unit">in²</span>';$('conduitFillLimit').innerHTML=(fill*100).toFixed(0)+' <span class="unit">%</span>';$('conduitResult').textContent='Mayor a 4"';$('conduitResultDetail').textContent='No existe tamaño suficiente entre los tamaños disponibles (1/2" a 4").';$('conduitPercent').innerHTML='— <span class="unit">%</span>';$('conduitAreaDetail').textContent='';$('conduitStatus').textContent='Aumenta el rango de canalización o divide los conductores en más de una tubería.';$('conduitStatus').className='status warn';return;}
- const inside=conduitAreas[type][idx],pct=total/inside*100,ok=pct<=fill*100+1e-8;
+ const capacity=conduitAreas[type].map(a=>a*fill),mode=$('conduitMode').value;
+ let idx=mode==='minimum'?capacity.findIndex(a=>a+1e-9>=total):Number($('conduitSize').value);
  $('conduitWireArea').innerHTML=total.toFixed(4)+' <span class="unit">in²</span>';
  $('conduitFillLimit').innerHTML=(fill*100).toFixed(0)+' <span class="unit">%</span>';
+ if(idx<0||idx>=capacity.length){
+  $('conduitResult').textContent='Mayor a 4"';$('conduitResultDetail').textContent='No existe tamaño suficiente entre los tamaños disponibles (1/2" a 4").';
+  $('conduitPercent').innerHTML='— <span class="unit">%</span>';$('conduitAreaDetail').textContent='Conductores: '+count+' · '+summary.join(' / ');
+  $('conduitStatus').textContent='Aumenta el rango de canalización o distribuye los conductores en más de una tubería.';$('conduitStatus').className='status warn';return;
+ }
+ const inside=conduitAreas[type][idx],pct=total/inside*100,ok=pct<=fill*100+1e-8;
  $('conduitResult').textContent=conduitSizes[idx]+' '+({emt:'EMT',pvc40:'PVC cédula 40',pvc80:'PVC cédula 80',rnc:'RMC'}[type]);
  $('conduitResultDetail').textContent=mode==='minimum'?'Tamaño mínimo calculado para el llenado permitido.':'Tamaño seleccionado para verificación.';
  $('conduitPercent').innerHTML=pct.toFixed(1)+' <span class="unit">%</span>';
- $('conduitAreaDetail').textContent='Área interior: '+inside.toFixed(3)+' in² · Área máxima permitida: '+capacity[idx].toFixed(3)+' in².';
- if(ok){$('conduitStatus').textContent='Cumple el límite de llenado para esta cantidad de conductores. Revisa las demás condiciones de instalación.';$('conduitStatus').className='status';}
- else{$('conduitStatus').textContent='NO CUMPLE: el llenado calculado excede el '+(fill*100).toFixed(0)+' % permitido. Selecciona una canalización mayor.';$('conduitStatus').className='status warn';}
+ $('conduitAreaDetail').textContent='Área interior: '+inside.toFixed(3)+' in² · Área máxima: '+capacity[idx].toFixed(3)+' in² · Total: '+count+' conductores. '+summary.join(' / ');
+ if(ok){$('conduitStatus').textContent='Cumple el límite de llenado para la combinación de conductores ingresada.';$('conduitStatus').className='status';}
+ else{$('conduitStatus').textContent='NO CUMPLE: la ocupación supera el '+(fill*100).toFixed(0)+' % permitido. Selecciona una canalización mayor.';$('conduitStatus').className='status warn';}
 }
+$('addConduitRow').addEventListener('click',()=>addConduitRow('thhn','12','1'));
 $('conduitCalc').addEventListener('click',calculateConduit);
-$('conduitReset').addEventListener('click',()=>{$('conduitType').value='emt';$('conductorIns').value='thhn';$('conduitGauge').value='12';$('conduitCount').value='4';$('conduitMode').value='minimum';$('conduitSize').value='0';updateConduitMode();calculateConduit()});
-['conduitType','conductorIns','conduitGauge','conduitCount','conduitSize'].forEach(id=>$(id).addEventListener('change',calculateConduit));
+$('conduitReset').addEventListener('click',()=>{$('conduitType').value='emt';$('conduitMode').value='minimum';$('conduitSize').value='0';$('conduitRows').innerHTML='';conduitRowId=0;addConduitRow('thhn','12','4');updateConduitMode();calculateConduit()});
+['conduitType','conduitSize'].forEach(id=>$(id).addEventListener('change',calculateConduit));
+addConduitRow('thhn','12','4');
 updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();calculateProtection();updateConduitMode();calculateConduit();
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
