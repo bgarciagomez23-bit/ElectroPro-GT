@@ -13,23 +13,27 @@ data class VoltageDropResult(
 
 /**
  * Approximate resistive voltage-drop estimate using K in ohm-circular-mil/ft.
- * Length is one-way conductor route length. Area is conductor circular mils.
- * This does not replace impedance-based calculations or NEC ampacity sizing.
+ * Input length is one-way route length in meters and is converted to feet internally.
+ * Area is conductor circular mils. This does not replace impedance-based calculations
+ * or NEC ampacity sizing.
  */
 object VoltageDropCalculator {
+    private const val METERS_PER_FOOT = 0.3048
+
     fun calculate(
         currentA: Double,
-        oneWayLengthFt: Double,
+        oneWayLengthM: Double,
         systemVoltageV: Double,
         conductorAreaCircularMils: Double,
         material: ConductorMaterial,
         phase: SystemPhase
     ): VoltageDropResult {
         requirePositive("currentA", currentA)
-        requirePositive("oneWayLengthFt", oneWayLengthFt)
+        requirePositive("oneWayLengthM", oneWayLengthM)
         requirePositive("systemVoltageV", systemVoltageV)
         requirePositive("conductorAreaCircularMils", conductorAreaCircularMils)
 
+        val oneWayLengthFt = oneWayLengthM / METERS_PER_FOOT
         val multiplier = when (phase) {
             SystemPhase.SINGLE_PHASE -> 2.0
             SystemPhase.THREE_PHASE -> 1.7320508075688772
