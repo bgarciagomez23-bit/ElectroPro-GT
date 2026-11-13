@@ -23,7 +23,7 @@ fun VoltageDropScreen(onBack: () -> Unit) {
     var phase by remember { mutableStateOf(SystemPhase.THREE_PHASE) }
     var material by remember { mutableStateOf(ConductorMaterial.COPPER_75C) }
     var current by remember { mutableStateOf("50") }
-    var length by remember { mutableStateOf("100") }
+    var length by remember { mutableStateOf("30.48") }
     var voltage by remember { mutableStateOf("208") }
     var area by remember { mutableStateOf("41740") }
     var selectedSize by remember { mutableStateOf("4 AWG") }
@@ -34,7 +34,7 @@ fun VoltageDropScreen(onBack: () -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("ELECTROPRO GT", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
         Text("Caída de tensión", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text("Estimación resistiva. Longitud de recorrido en un solo sentido; área en circular mils (CM).", fontSize = 12.sp)
+        Text("Estimación resistiva. Longitud de recorrido en un solo sentido en metros; área en circular mils (CM).", fontSize = 12.sp)
         Row {
             FilterChip(selected = phase == SystemPhase.SINGLE_PHASE, onClick = { phase = SystemPhase.SINGLE_PHASE }, label = { Text("Monofásico") })
             Spacer(Modifier.width(8.dp))
@@ -46,7 +46,7 @@ fun VoltageDropScreen(onBack: () -> Unit) {
             FilterChip(selected = material == ConductorMaterial.ALUMINUM_75C, onClick = { material = ConductorMaterial.ALUMINUM_75C }, label = { Text("Aluminio 75 °C") })
         }
         NumericField(current, { current = it; error = null }, "Corriente (A)")
-        NumericField(length, { length = it; error = null }, "Longitud unidireccional (ft)")
+        NumericField(length, { length = it; error = null }, "Longitud unidireccional (m)")
         NumericField(voltage, { voltage = it; error = null }, "Tensión del sistema (V)")
         ExposedDropdownMenuBox(expanded = sizeMenuExpanded, onExpandedChange = { sizeMenuExpanded = !sizeMenuExpanded }) {
             OutlinedTextField(
