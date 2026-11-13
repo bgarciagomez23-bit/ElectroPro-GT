@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071426"><meta name="description" content="ElectroPro GT — cálculo de caída de tensión en conductores eléctricos.">
+<title>ElectroPro GT | Conductores</title>
+<style>
+:root{color-scheme:dark;--bg:#07111f;--panel:#101f32;--panel2:#142740;--line:#29415c;--text:#edf4fb;--muted:#9eb1c7;--blue:#35a7ff;--cyan:#55d5e8;--green:#43d19e;--warn:#ffc66d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#153454 0%,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1040px;margin:auto;padding:24px 18px 48px}.top{display:flex;align-items:center;gap:14px;margin-bottom:28px}.logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(145deg,#147bc4,#0d3559);display:grid;place-items:center;font-weight:900;font-size:20px;color:white;box-shadow:0 8px 25px #0005}.brand{font-weight:800;letter-spacing:.08em;font-size:16px}.subbrand{color:var(--muted);font-size:12px;letter-spacing:.12em}.tag{margin-left:auto;border:1px solid var(--line);border-radius:999px;padding:6px 11px;color:var(--cyan);font-size:12px}
+h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:var(--muted);max-width:680px;margin:0 0 25px}.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.card{background:linear-gradient(160deg,#12243a,#0d1a2b);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 18px 45px #0002}.card h2{font-size:16px;margin:0 0 18px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;color:#c5d4e4;font-size:13px;margin:0 0 7px}input,select{width:100%;background:#081626;color:var(--text);border:1px solid #34506c;border-radius:10px;padding:12px 11px;font:inherit;outline:none}input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #35a7ff22}.hint{font-size:11px;color:var(--muted);margin-top:5px}.actions{display:flex;gap:10px;margin-top:19px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:12px 17px;font-weight:750;font-size:14px;cursor:pointer}.primary{background:linear-gradient(100deg,#168de0,#20b5d1);color:#031321}.secondary{background:#1a2e45;color:#d7e5f3;border:1px solid var(--line)}.result{display:flex;flex-direction:column;gap:14px}.metric{background:#091827;border:1px solid var(--line);border-radius:13px;padding:16px}.metric .k{font-size:12px;color:var(--muted)}.metric .v{font-size:clamp(25px,4vw,34px);font-weight:800;letter-spacing:-.03em;margin-top:3px}.metric .unit{font-size:13px;color:var(--muted);font-weight:500}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{border-left:3px solid var(--cyan);padding:10px 12px;background:#0b1c2d;border-radius:0 9px 9px 0;color:var(--muted);font-size:12px}.status{font-size:13px;color:var(--green);font-weight:700}.status.warn{color:var(--warn)}.foot{margin-top:22px;color:#8298b0;font-size:11px}.foot strong{color:#b6c9dc}.hidden{display:none}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.wrap{padding:18px 14px 36px}.card{padding:18px}.tag{font-size:10px}.fields{gap:12px}}
+@media(max-width:420px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.tag{display:none}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="top"><div class="logo">E</div><div><div class="brand">ELECTROPRO GT</div><div class="subbrand">INGENIERÍA ELÉCTRICA</div></div><div class="tag">HERRAMIENTA TÉCNICA</div></header>
+<h1>Conductores eléctricos</h1><p class="intro">Calculadora de caída de tensión. Ingresa la longitud unidireccional en metros y los parámetros del circuito para obtener la caída estimada.</p>
+<div class="layout">
+<section class="card"><h2>Parámetros del circuito</h2>
+<div class="fields">
+<div class="field"><label for="system">Sistema</label><select id="system"><option value="1">Monofásico</option><option value="3">Trifásico</option></select></div>
+<div class="field"><label for="material">Material del conductor</label><select id="material"><option value="12.9">Cobre — 75 °C</option><option value="21.2">Aluminio — 75 °C</option></select></div>
+<div class="field"><label for="voltage">Tensión del sistema (V)</label><input id="voltage" type="number" min="1" step="any" value="240"></div>
+<div class="field"><label for="current">Corriente (A)</label><input id="current" type="number" min="0" step="any" value="40"></div>
+<div class="field"><label for="length">Longitud unidireccional (m)</label><input id="length" type="number" min="0" step="any" value="30.48"><div class="hint">Distancia de recorrido en un solo sentido.</div></div>
+<div class="field"><label for="area">Área del conductor (CM)</label><input id="area" type="number" min="1" step="any" value="66360"><div class="hint">Área en circular mils (CM), no mm².</div></div>
+</div><div class="actions"><button class="primary" id="calc">Calcular caída</button><button class="secondary" id="reset">Restablecer</button></div>
+</section>
+<aside class="card result"><h2>Resultado del cálculo</h2>
+<div class="metric"><div class="k">Caída de tensión</div><div class="v" id="drop">— <span class="unit">V</span></div></div>
+<div class="split"><div class="metric"><div class="k">Caída porcentual</div><div class="v" id="percent">—<span class="unit"> %</span></div></div><div class="metric"><div class="k">Tensión estimada al extremo</div><div class="v" id="endvoltage">— <span class="unit">V</span></div></div></div>
+<div id="status" class="status">Ingresa los datos y calcula.</div>
+<div class="note">Estimación resistiva con K = 12.9 para cobre y K = 21.2 para aluminio. No incluye reactancia, temperatura real de operación, agrupamiento ni factores de corrección de ampacidad.</div>
+</aside></div>
+<p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+function calculate(){
+ const system=Number($('system').value),k=Number($('material').value),v=Number($('voltage').value),i=Number($('current').value),m=Number($('length').value),area=Number($('area').value);
+ if(![v,i,m,area].every(Number.isFinite)||v<=0||i<0||m<0||area<=0){$('status').textContent='Verifica los datos: tensión y área deben ser mayores que cero; corriente y longitud no pueden ser negativas.';$('status').className='status warn';return}
+ const lengthFt=m/0.3048;
+ const multiplier=system===1?2:Math.sqrt(3);
+ const drop=multiplier*k*i*lengthFt/area;
+ const pct=drop/v*100;
+ $('drop').innerHTML=drop.toFixed(3)+' <span class="unit">V</span>';
+ $('percent').innerHTML=pct.toFixed(2)+'<span class="unit"> %</span>';
+ $('endvoltage').innerHTML=(v-drop).toFixed(2)+' <span class="unit">V</span>';
+ $('status').textContent=pct>5?'Caída elevada: revisa el diseño y los criterios aplicables.':'Cálculo completado. Verifica el porcentaje según el criterio de diseño aplicable.';
+ $('status').className=pct>5?'status warn':'status';
+}
+$('calc').addEventListener('click',calculate);
+$('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
+calculate();
+</script></body></html>
