@@ -111,17 +111,22 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div class="field"><label for="protContinuous">Corriente de carga continua (A)</label><input id="protContinuous" type="number" min="0" step="any" value="0"><div class="hint">Carga prevista para operar durante 3 horas o más.</div></div>
 <div class="field"><label for="protNoncontinuous">Corriente de carga no continua (A)</label><input id="protNoncontinuous" type="number" min="0" step="any" value="40"><div class="hint">Carga que no cumple la definición de carga continua.</div></div>
 <div class="field"><label for="protDevice">Tipo de dispositivo</label><select id="protDevice"><option value="breaker">Interruptor automático</option><option value="fuse">Fusible</option></select></div>
-<div class="field"><label for="protAmpacity">Ampacidad permisible del conductor (A), opcional</label><input id="protAmpacity" type="number" min="0" step="any" placeholder="Ej. 60"><div class="hint">Ingresa la ampacidad final después de correcciones y límites de terminales para comparar.</div></div>
+<div class="field"><label for="protMaterial">Material del conductor</label><select id="protMaterial"><option value="cu">Cobre</option><option value="al">Aluminio</option></select></div>
+<div class="field"><label for="protGauge">Calibre del conductor</label><select id="protGauge"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2" selected>2 AWG</option><option value="1">1 AWG</option><option value="1/0">1/0 AWG</option><option value="2/0">2/0 AWG</option><option value="3/0">3/0 AWG</option><option value="4/0">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="400">400 kcmil</option><option value="500">500 kcmil</option><option value="600">600 kcmil</option><option value="700">700 kcmil</option><option value="750">750 kcmil</option><option value="800">800 kcmil</option><option value="900">900 kcmil</option><option value="1000">1000 kcmil</option></select></div>
+<div class="field"><label for="protInsulation">Temperatura nominal del aislamiento</label><select id="protInsulation"><option value="0">60 °C</option><option value="1" selected>75 °C</option><option value="2">90 °C</option></select></div>
+<div class="field"><label for="protAmbient">Temperatura ambiente (°C)</label><input id="protAmbient" type="number" min="-10" max="85" step="1" value="30"></div>
+<div class="field"><label for="protConductors">Conductores portadores de corriente</label><select id="protConductors"><option value="1">1 a 3</option><option value="0.8">4 a 6</option><option value="0.7">7 a 9</option><option value="0.5">10 a 20</option><option value="0.45">21 a 30</option><option value="0.4">31 a 40</option><option value="0.35">41 o más</option></select></div>
+<div class="field"><label for="protTerminal">Temperatura nominal de terminales</label><select id="protTerminal"><option value="0">60 °C</option><option value="1" selected>75 °C</option><option value="2">90 °C</option></select></div>
 </div>
 <div class="actions"><button class="primary" id="protCalc">Dimensionar protección</button><button class="secondary" id="protReset">Restablecer</button></div>
 <div class="split" style="margin-top:16px">
 <div class="metric"><div class="k">Carga calculada para dimensionamiento</div><div class="v" id="protLoad">— <span class="unit">A</span></div></div>
 <div class="metric"><div class="k">Capacidad nominal comercial sugerida</div><div class="v" id="protRating">— <span class="unit">A</span></div></div>
 </div>
-<div class="metric" style="margin-top:10px"><div class="k">Desglose del cálculo</div><div id="protBreakdown" style="font-size:14px;color:var(--muted)">Ingresa las corrientes para calcular.</div></div>
+<div class="metric" style="margin-top:10px"><div class="k">Ampacidad disponible del conductor</div><div class="v" id="protCableAmpacity">— <span class="unit">A</span></div><div id="protCableDetail" style="font-size:12px;color:var(--muted)">Selecciona el conductor y las condiciones.</div></div>\n<div class="metric" style="margin-top:10px"><div class="k">Desglose del cálculo</div><div id="protBreakdown" style="font-size:14px;color:var(--muted)">Ingresa las corrientes para calcular.</div></div>
 <div id="protStatus" class="status">Pendiente de cálculo.</div>
 <div class="note">Criterio general preliminar: corriente de dimensionamiento = 125 % de la carga continua + 100 % de la carga no continua. Se selecciona el siguiente valor nominal normalizado igual o superior conforme a NEC 240.6(A); considerar NEC 210.20(A) para circuitos derivados y 215.3 para alimentadores, según corresponda.</div>
-<div class="note" style="margin-top:10px">No aplica directamente a motores, transformadores, capacitores, circuitos HVAC ni otras cargas con reglas específicas. La protección final debe coordinarse con la ampacidad del conductor (NEC 240.4), terminales (110.14(C)), corriente de cortocircuito disponible y capacidad interruptiva (110.9 y 110.10), curva de disparo y condiciones reales. La regla del siguiente tamaño de 240.4(B) tiene condiciones y excepciones: no se asume automáticamente.</div>
+<div class="note" style="margin-top:10px">No aplica directamente a motores, transformadores, capacitores, circuitos HVAC ni otras cargas con reglas específicas. La ampacidad del cable se estima con NEC 310.16, factores de corrección/ajuste de 310.15 y límite de terminales 110.14(C); la protección debe cumplir NEC 240.4. También verifica corriente de cortocircuito y capacidad interruptiva (110.9 y 110.10), curva de disparo y condiciones reales. La regla del siguiente tamaño de 240.4(B) tiene condiciones y excepciones: no se asume automáticamente.</div>
 </section>
 <p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
 </main>
@@ -236,27 +241,36 @@ $('corrReset').addEventListener('click',()=>{$('corrMaterial').value='cu';$('cor
 const standardRatings=[1,2,3,4,5,6,10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200,1600,2000,2500,3000,4000,5000,6000];
 function calculateProtection(){
  const cont=Number($('protContinuous').value),noncont=Number($('protNoncontinuous').value);
- const ampText=$('protAmpacity').value.trim(),amp=ampText===''?null:Number(ampText);
- if(!Number.isFinite(cont)||!Number.isFinite(noncont)||cont<0||noncont<0||cont+noncont<=0||(amp!==null&&(!Number.isFinite(amp)||amp<=0))){
-  $('protStatus').textContent='Ingresa corrientes válidas; al menos una debe ser mayor que cero. La ampacidad opcional debe ser mayor que cero.';
-  $('protStatus').className='status warn';return;
+ const mat=$('protMaterial').value,gauge=$('protGauge').value,ins=Number($('protInsulation').value),term=Number($('protTerminal').value);
+ const ambient=Number($('protAmbient').value),group=Number($('protConductors').value);
+ if(!Number.isFinite(cont)||!Number.isFinite(noncont)||cont<0||noncont<0||cont+noncont<=0||!Number.isFinite(ambient)||ambient < -10||ambient>85){
+  $('protStatus').textContent='Ingresa corrientes válidas y una temperatura ambiente entre -10 y 85 °C.';$('protStatus').className='status warn';return;
  }
+ const row=ampacityTable[mat][gauge],tf=ambientFactor(ambient,ins);
+ if(!row||tf===null){$('protStatus').textContent='No existe ampacidad/factor disponible para esta combinación. Revisa material, calibre y temperatura.';$('protStatus').className='status warn';return;}
+ const base=row[ins],terminalLimit=row[term],adjusted=base*tf*group,allowable=Math.min(adjusted,terminalLimit);
  const required=cont*1.25+noncont;
+ let conductorLimit=allowable,extra='';
+ if(mat==='cu'&&gauge==='14'){conductorLimit=Math.min(conductorLimit,15);extra=' Se aplicó límite general de 15 A para #14 Cu (NEC 240.4(D)).';}
+ if(mat==='cu'&&gauge==='12'){conductorLimit=Math.min(conductorLimit,20);extra=' Se aplicó límite general de 20 A para #12 Cu (NEC 240.4(D)).';}
+ if(mat==='cu'&&gauge==='10'){conductorLimit=Math.min(conductorLimit,30);extra=' Se aplicó límite general de 30 A para #10 Cu (NEC 240.4(D)).';}
  const rating=standardRatings.find(x=>x>=required);
+ const feasible=rating!==undefined&&rating<=conductorLimit;
  $('protLoad').innerHTML=required.toFixed(2)+' <span class="unit">A</span>';
- $('protRating').innerHTML=rating?rating+' <span class="unit">A</span>':'Fuera de rango';
- $('protBreakdown').textContent='( '+cont.toFixed(2)+' A × 1.25 ) + '+noncont.toFixed(2)+' A = '+required.toFixed(2)+' A. Dispositivo: '+($('protDevice').value==='breaker'?'interruptor automático':'fusible')+'.';
- let msg=rating?'Selección nominal preliminar: '+rating+' A.':'La corriente calculada supera los valores normalizados incluidos en esta herramienta.';
+ $('protCableAmpacity').innerHTML=conductorLimit.toFixed(1)+' <span class="unit">A</span>';
+ $('protCableDetail').textContent=(mat==='cu'?'Cobre':'Aluminio')+' · '+gauge+(Number(gauge)>=250?' kcmil':' AWG')+' · '+[60,75,90][ins]+' °C; factor temperatura '+tf.toFixed(2)+'; agrupamiento '+group.toFixed(2)+'; límite terminal '+terminalLimit+' A.'+extra;
+ $('protRating').innerHTML=feasible?rating+' <span class="unit">A</span>':'No compatible';
+ $('protBreakdown').textContent='( '+cont.toFixed(2)+' A × 1.25 ) + '+noncont.toFixed(2)+' A = '+required.toFixed(2)+' A. Ampacidad calculada del conductor: '+conductorLimit.toFixed(1)+' A.';
+ let msg;
  let warn=false;
- if(rating&&amp!==null&&rating>amp){msg+=' ADVERTENCIA: el valor nominal sugerido supera la ampacidad ingresada del conductor ('+amp.toFixed(2)+' A); revisa NEC 240.4 y determina si alguna regla o excepción es aplicable.';warn=true;}
- else if(rating&&amp!==null){msg+=' El valor nominal no supera la ampacidad ingresada; aún debe verificarse la coordinación y las reglas aplicables.';}
- else if(rating){msg+=' No se ingresó ampacidad del conductor; no se ha verificado la protección contra sobrecorriente respecto al conductor.';warn=true;}
- $('protStatus').textContent=msg;
- $('protStatus').className=warn?'status warn':'status';
+ if(!rating){msg='La corriente calculada excede los valores nominales disponibles en esta herramienta.';warn=true;}
+ else if(!feasible){msg='NO SE PUEDE VALIDAR: la protección requerida sería '+rating+' A y supera la ampacidad disponible del conductor ('+conductorLimit.toFixed(1)+' A). Aumenta el calibre o revisa el diseño y las reglas aplicables.';warn=true;}
+ else {msg='La protección de '+rating+' A no supera la ampacidad calculada del conductor. Selección preliminar; falta verificar aplicación, cortocircuito y coordinación.';warn=true;}
+ $('protStatus').textContent=msg;$('protStatus').className=warn?'status warn':'status';
 }
 $('protCalc').addEventListener('click',calculateProtection);
-$('protReset').addEventListener('click',()=>{$('protContinuous').value='0';$('protNoncontinuous').value='40';$('protDevice').value='breaker';$('protAmpacity').value='';calculateProtection()});
-['protContinuous','protNoncontinuous','protDevice','protAmpacity'].forEach(id=>$(id).addEventListener('change',calculateProtection));
+$('protReset').addEventListener('click',()=>{$('protContinuous').value='0';$('protNoncontinuous').value='40';$('protDevice').value='breaker';$('protMaterial').value='cu';$('protGauge').value='2';$('protInsulation').value='1';$('protAmbient').value='30';$('protConductors').value='1';$('protTerminal').value='1';calculateProtection()});
+['protContinuous','protNoncontinuous','protDevice','protMaterial','protGauge','protInsulation','protAmbient','protConductors','protTerminal'].forEach(id=>$(id).addEventListener('change',calculateProtection));
 updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();calculateProtection();
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
