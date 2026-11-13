@@ -9,14 +9,76 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#153454 0%,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 .wrap{max-width:1040px;margin:auto;padding:24px 18px 48px}.top{display:flex;align-items:center;gap:14px;margin-bottom:28px}.logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(145deg,#147bc4,#0d3559);display:grid;place-items:center;font-weight:900;font-size:20px;color:white;box-shadow:0 8px 25px #0005}.brand{font-weight:800;letter-spacing:.08em;font-size:16px}.subbrand{color:var(--muted);font-size:12px;letter-spacing:.12em}.tag{margin-left:auto;border:1px solid var(--line);border-radius:999px;padding:6px 11px;color:var(--cyan);font-size:12px}
 h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:var(--muted);max-width:680px;margin:0 0 25px}.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.card{background:linear-gradient(160deg,#12243a,#0d1a2b);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 18px 45px #0002}.card h2{font-size:16px;margin:0 0 18px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;color:#c5d4e4;font-size:13px;margin:0 0 7px}input,select{width:100%;background:#081626;color:var(--text);border:1px solid #34506c;border-radius:10px;padding:12px 11px;font:inherit;outline:none}input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #35a7ff22}.hint{font-size:11px;color:var(--muted);margin-top:5px}.actions{display:flex;gap:10px;margin-top:19px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:12px 17px;font-weight:750;font-size:14px;cursor:pointer}.primary{background:linear-gradient(100deg,#168de0,#20b5d1);color:#031321}.secondary{background:#1a2e45;color:#d7e5f3;border:1px solid var(--line)}.result{display:flex;flex-direction:column;gap:14px}.metric{background:#091827;border:1px solid var(--line);border-radius:13px;padding:16px}.metric .k{font-size:12px;color:var(--muted)}.metric .v{font-size:clamp(25px,4vw,34px);font-weight:800;letter-spacing:-.03em;margin-top:3px}.metric .unit{font-size:13px;color:var(--muted);font-weight:500}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{border-left:3px solid var(--cyan);padding:10px 12px;background:#0b1c2d;border-radius:0 9px 9px 0;color:var(--muted);font-size:12px}.status{font-size:13px;color:var(--green);font-weight:700}.status.warn{color:var(--warn)}.foot{margin-top:22px;color:#8298b0;font-size:11px}.foot strong{color:#b6c9dc}.hidden{display:none}
+:root{--bg:#080e14;--panel:#101c25;--panel2:#172630;--line:#263946;--text:#edf3f8;--muted:#a0acb8;--accent:#ffb642;--accent-dark:#382716}
+body{background:#080e14}
+.wrap{max-width:1120px;padding:28px 18px 110px}
+.top{margin-bottom:22px}.logo{background:var(--accent);color:#09111a;box-shadow:none}.tag{color:var(--accent);border-color:#604b2d}
+.reference-card,.report-card{background:#101c25;border:2px solid #263946;border-radius:30px;padding:28px;margin:0 0 28px}
+.reference-head{display:flex;justify-content:space-between;gap:12px;color:#aeb9c4;font-size:14px;letter-spacing:.12em}
+.reference-head span{letter-spacing:0;color:#8794a1}
+.edition-list{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.edition{background:#0b151d;border:2px solid #263946;color:#aeb9c4;border-radius:20px;padding:14px 22px;font-size:19px}
+.edition.active{border-color:var(--accent);background:#332719;color:var(--accent)}
+.edition-note{font-size:12px;color:#8493a0;margin-top:12px}
+.report-heading{display:flex;align-items:center;gap:14px;font-size:20px}.report-heading>div>div{font-size:14px;color:var(--muted);font-weight:400}
+.report-icon{font-size:30px;color:var(--accent)}.export-btn{margin-top:20px;background:#0b151d;color:#aeb9c4;border:2px solid #263946;border-radius:18px;padding:16px 22px}
+.report-card p{color:#aeb9c4;margin:18px 0 0}
+.section-title{font-size:25px;margin:36px 0 18px}
+.calculator-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.calc-tile{min-height:185px;text-align:left;background:#101c25;border:2px solid #263946;border-radius:28px;padding:22px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;color:var(--text)}
+.calc-tile.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tile-icon{width:54px;height:54px;border-radius:17px;background:#382919;color:var(--accent);display:grid;place-items:center;font-size:30px;font-weight:800}
+.calc-tile.selected .tile-icon{background:var(--accent);color:#101820}
+.calc-tile strong{font-size:18px}.calc-tile>span:last-child{font-size:15px;color:#aab5c0;font-weight:400}
+.workspace-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0 18px}.workspace-head span{font-weight:800;font-size:19px;flex:1}.save-result{background:var(--accent);color:#101820}
+.bottom-nav{position:fixed;z-index:20;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:60px;background:#080e14;border-top:2px solid #263946;padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+.nav-item{background:transparent;color:#8794a1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 18px;font-size:13px}
+.nav-item span{font-size:25px}.nav-item.active{color:var(--accent)}
+.guide-panel{margin-top:16px}.guide-item{padding:15px 4px;border-bottom:1px solid #263946;display:flex;flex-direction:column;gap:4px}.guide-item span{color:var(--muted);font-size:14px}
+#calculatorWorkspace>.card,#calculatorWorkspace>section{margin-top:16px}
+@media(max-width:760px){.wrap{padding:18px 14px 110px}.reference-card,.report-card{padding:22px;border-radius:26px}.calculator-grid{gap:12px}.calc-tile{min-height:170px;padding:18px;border-radius:24px}.calc-tile strong{font-size:16px}.calc-tile>span:last-child{font-size:13px}.reference-head{font-size:12px}.edition{padding:12px 18px}}
+@media(max-width:420px){.calculator-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.calc-tile{min-height:170px;padding:14px}.tile-icon{width:48px;height:48px}.edition-list{gap:8px}.edition{padding:10px 14px;font-size:16px}.workspace-head span{flex-basis:100%}}
 @media(max-width:760px){.layout{grid-template-columns:1fr}.wrap{padding:18px 14px 36px}.card{padding:18px}.tag{font-size:10px}.fields{gap:12px}}
 @media(max-width:420px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.tag{display:none}}
 </style>
 </head>
 <body><main class="wrap">
 <header class="top"><div class="logo">E</div><div><div class="brand">ELECTROPRO GT</div><div class="subbrand">INGENIERÍA ELÉCTRICA</div></div><div class="tag">HERRAMIENTA TÉCNICA</div></header>
-<h1>Calculadora eléctrica</h1><p class="intro">Selecciona el módulo que necesitas utilizar.</p>
-<div class="field" style="max-width:440px;margin:0 0 22px"><label for="calculatorMenu">Seleccionar cálculo</label><select id="calculatorMenu"><option value="voltage">Caída de tensión en conductores</option><option value="power">Cálculo de potencia y corriente</option><option value="ampacity">Capacidad de corriente del conductor</option><option value="correction">Corrección de ampacidad</option><option value="protection">Dimensionamiento de protección</option><option value="conduit">Dimensionamiento de canalización</option></select></div>
+<section id="homeDashboard">
+<div class="reference-card">
+<div class="reference-head"><strong>EDICIÓN DE REFERENCIA</strong><span>No detecta la adopción local</span></div>
+<div class="edition-list">
+<button class="edition" data-edition="2017">2017</button><button class="edition" data-edition="2020">2020</button><button class="edition active" data-edition="2023">2023</button><button class="edition" data-edition="2026">2026</button>
+</div>
+<div class="edition-note" id="editionNote">Referencia técnica seleccionada: NEC 2023. Verifica la edición adoptada por la autoridad competente.</div>
+</div>
+<div class="report-card">
+<div class="report-heading"><span class="report-icon">▤</span><div><strong>Reporte local</strong><div id="savedCount">0 cálculo(s) guardado(s) en este dispositivo</div></div></div>
+<button class="export-btn" id="exportCsv">⬇　Exportar CSV</button>
+<p>Guarda resultados desde cada tarjeta; el CSV incluye entradas, resultados y notas.</p>
+</div>
+<h2 class="section-title">Calculadoras</h2>
+<div class="calculator-grid">
+<button class="calc-tile selected" data-panel="power"><span class="tile-icon">ϟ</span><strong>Potencia &amp; corriente</strong><span>AC monofásica, trifásica y DC</span></button>
+<button class="calc-tile" data-panel="correction"><span class="tile-icon">∿</span><strong>Dimensionar conductor</strong><span>Ampacidad con correcciones</span></button>
+<button class="calc-tile" data-panel="voltage"><span class="tile-icon">⌁</span><strong>Caída de tensión</strong><span>Longitud, calibre y material</span></button>
+<button class="calc-tile" data-panel="protection"><span class="tile-icon">⬟</span><strong>Protección general</strong><span>Carga continua/no continua</span></button>
+<button class="calc-tile" data-panel="conduit"><span class="tile-icon">◯</span><strong>Canalización</strong><span>EMT, IMC, RMC y PVC</span></button>
+<button class="calc-tile" data-panel="ampacity"><span class="tile-icon">▦</span><strong>Ampacidad de conductor</strong><span>Capacidad según calibre y material</span></button>
+</div>
+</section>
+<section id="guidePanel" class="card hidden guide-panel">
+<h2>Guía NEC</h2><p class="intro">Referencias técnicas para apoyar la consulta y el diseño eléctrico.</p>
+<div class="guide-item"><strong>Artículo 110</strong><span>Requisitos generales, conexiones y espacios de trabajo.</span></div>
+<div class="guide-item"><strong>Artículo 210</strong><span>Circuitos derivados y protección.</span></div>
+<div class="guide-item"><strong>Artículo 215</strong><span>Alimentadores.</span></div>
+<div class="guide-item"><strong>Artículo 240</strong><span>Protección contra sobrecorriente.</span></div>
+<div class="guide-item"><strong>Artículo 250</strong><span>Puesta a tierra y unión.</span></div>
+<div class="guide-item"><strong>Capítulo 9</strong><span>Tablas de áreas y llenado de canalizaciones.</span></div>
+<p class="note">Esta guía es un índice de consulta, no reproduce el texto normativo. Utiliza una copia legal de la edición NEC aplicable y confirma requisitos locales.</p>
+</section>
+<div id="calculatorWorkspace" class="hidden">
+<div class="workspace-head"><button class="secondary" id="backHome">← Volver a calculadoras</button><span id="workspaceTitle">Calculadora</span><button class="primary save-result" id="saveLocal">Guardar cálculo</button></div>
 <div id="voltagePanel">
 <p class="intro">Ingresa la longitud unidireccional en metros y los parámetros del circuito para obtener la caída estimada.</p>
 <div class="layout">
@@ -150,10 +212,48 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div class="note">Referencia: NEC 2023, Capítulo 9, Tabla 1 (porcentaje de llenado), Tabla 4 (área interior de canalizaciones) y Tabla 5 (área de conductores aislados). Se incluye el área del aislamiento, no solamente el área de cobre o aluminio.</div>
 <div class="note" style="margin-top:10px">Alcance actual: conductores individuales redondos THHN/THWN-2, XHHW-2 y THW en calibres listados; canalizaciones EMT, PVC cédula 40/80 y RMC de 1/2" a 4". No incluye cables multiconductores, conductores en paralelo con reglas especiales, nipples de 24" o menos, bandejas, ocupación de accesorios ni verificación de radios/tensión de jalado. El llenado no sustituye la revisión de ampacidad y agrupamiento. Verifica los datos de la edición NEC adoptada y las especificaciones del fabricante.</div>
 </section>
-<p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
+</div>\n<nav class="bottom-nav"><button class="nav-item active" id="navCalc"><span>▣</span>Calculadora</button><button class="nav-item" id="navGuide"><span>▤</span>Guía NEC</button></nav>\n<p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
 </main>
 <script>
 const $=id=>document.getElementById(id);
+let currentPanel='power';
+const panelNames={power:'Potencia & corriente',correction:'Dimensionar conductor',voltage:'Caída de tensión',protection:'Protección general',conduit:'Canalización',ampacity:'Ampacidad de conductor'};
+const panels=['voltage','power','ampacity','correction','protection','conduit'];
+function showPanel(name){
+ currentPanel=name;
+ $('homeDashboard').classList.add('hidden');$('guidePanel').classList.add('hidden');$('calculatorWorkspace').classList.remove('hidden');
+ panels.forEach(p=>$(p+'Panel').classList.toggle('hidden',p!==name));
+ $('workspaceTitle').textContent=panelNames[name]||'Calculadora';
+ document.querySelectorAll('.calc-tile').forEach(t=>t.classList.toggle('selected',t.dataset.panel===name));
+ $('navCalc').classList.add('active');$('navGuide').classList.remove('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function showHome(){
+ $('calculatorWorkspace').classList.add('hidden');$('guidePanel').classList.add('hidden');$('homeDashboard').classList.remove('hidden');
+ $('navCalc').classList.add('active');$('navGuide').classList.remove('active');window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.calc-tile').forEach(t=>t.addEventListener('click',()=>showPanel(t.dataset.panel)));
+$('backHome').addEventListener('click',showHome);$('navCalc').addEventListener('click',showHome);
+$('navGuide').addEventListener('click',()=>{$('homeDashboard').classList.add('hidden');$('calculatorWorkspace').classList.add('hidden');$('guidePanel').classList.remove('hidden');$('navGuide').classList.add('active');$('navCalc').classList.remove('active');window.scrollTo({top:0,behavior:'smooth'});});
+document.querySelectorAll('.edition').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.edition').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ $('editionNote').textContent='Edición de referencia seleccionada: NEC '+b.dataset.edition+'. Verifica la adopción local y que las tablas/fórmulas de cada módulo correspondan a esta edición.';
+}));
+function getSaved(){try{return JSON.parse(localStorage.getItem('electropro_reports')||'[]')}catch(e){return []}}
+function refreshSavedCount(){$('savedCount').textContent=getSaved().length+' cálculo(s) guardado(s) en este dispositivo';}
+$('saveLocal').addEventListener('click',()=>{
+ const panel=$(currentPanel+'Panel');
+ const record={fecha:new Date().toLocaleString('es-GT'),modulo:panelNames[currentPanel],edicion:document.querySelector('.edition.active')?.dataset.edition||'2023',resultado:(panel?.innerText||'').replace(/Guardar cálculo/g,'').trim()};
+ const records=getSaved();records.push(record);localStorage.setItem('electropro_reports',JSON.stringify(records));refreshSavedCount();
+ $('saveLocal').textContent='Guardado ✓';setTimeout(()=>$('saveLocal').textContent='Guardar cálculo',1400);
+});
+$('exportCsv').addEventListener('click',()=>{
+ const rows=getSaved();if(!rows.length){alert('Todavía no hay cálculos guardados. Abre una calculadora y pulsa “Guardar cálculo”.');return;}
+ const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const csv=['Fecha,Módulo,Edición,Resultado',...rows.map(r=>[r.fecha,r.modulo,r.edicion,r.resultado].map(esc).join(','))].join('\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ElectroPro_GT_reporte.csv';a.click();URL.revokeObjectURL(url);
+});
+refreshSavedCount();
 function switchCalculator(){
  const selected=$('calculatorMenu').value;
  $('voltagePanel').classList.toggle('hidden',selected!=='voltage');
