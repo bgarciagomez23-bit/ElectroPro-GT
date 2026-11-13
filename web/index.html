@@ -37,6 +37,25 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div id="status" class="status">Ingresa los datos y calcula.</div>
 <div class="note">Estimación resistiva con K = 12.9 para cobre y K = 21.2 para aluminio. No incluye reactancia, temperatura real de operación, agrupamiento ni factores de corrección de ampacidad.</div>
 </aside></div>
+<section class="card" style="margin-top:20px">
+<h2>Cálculo de potencia y corriente</h2>
+<p class="intro" style="margin:0 0 18px">Calcula la potencia a partir de la corriente disponible o calcula la corriente a partir de la potencia conocida.</p>
+<div class="fields">
+<div class="field"><label for="pcMode">¿Qué deseas calcular?</label><select id="pcMode"><option value="power">Potencia (conozco la corriente)</option><option value="current">Corriente (conozco la potencia)</option></select></div>
+<div class="field"><label for="pcSystem">Tipo de sistema</label><select id="pcSystem"><option value="dc">Corriente continua (DC)</option><option value="1">Monofásico AC</option><option value="3">Trifásico AC</option></select></div>
+<div class="field"><label for="pcVoltage">Tensión (V)</label><input id="pcVoltage" type="number" min="0.001" step="any" value="240"></div>
+<div class="field" id="pcCurrentField"><label for="pcCurrent">Corriente (A)</label><input id="pcCurrent" type="number" min="0" step="any" value="10"></div>
+<div class="field hidden" id="pcPowerField"><label for="pcPower">Potencia activa (kW)</label><input id="pcPower" type="number" min="0" step="any" value="2.4"></div>
+<div class="field" id="pcPfField"><label for="pcPf">Factor de potencia (FP)</label><input id="pcPf" type="number" min="0.01" max="1" step="0.01" value="0.90"><div class="hint">Requerido para sistemas de corriente alterna. Rango: 0.01 a 1.00.</div></div>
+</div>
+<div class="actions"><button class="primary" id="pcCalc">Calcular</button><button class="secondary" id="pcReset">Restablecer</button></div>
+<div class="split" style="margin-top:16px">
+<div class="metric"><div class="k" id="pcResultLabel">Potencia activa</div><div class="v" id="pcResult">— <span class="unit">kW</span></div></div>
+<div class="metric"><div class="k" id="pcSecondaryLabel">Potencia aparente</div><div class="v" id="pcSecondary">— <span class="unit">kVA</span></div></div>
+</div>
+<div id="pcStatus" class="status">Ingresa los datos y calcula.</div>
+<div class="note">Fórmulas: DC: P = V × I. Monofásico AC: P = V × I × FP. Trifásico AC: P = √3 × V × I × FP. Para corriente, se despeja I. En trifásico se utiliza tensión entre líneas. No se considera eficiencia del equipo.</div>
+</section>
 <p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
 </main>
 <script>
@@ -55,6 +74,35 @@ function calculate(){
  $('status').className=pct>5?'status warn':'status';
 }
 $('gauge').addEventListener('change',()=>{const selected=$('gauge').value;if(selected!=='custom')$('area').value=selected;else $('area').focus();calculate()});
+function updatePcMode(){
+ const mode=$('pcMode').value,dc=$('pcSystem').value==='dc';
+ $('pcCurrentField').classList.toggle('hidden',mode==='current');
+ $('pcPowerField').classList.toggle('hidden',mode==='power');
+ $('pcPfField').classList.toggle('hidden',dc);
+ $('pcResultLabel').textContent=mode==='power'?'Potencia activa':'Corriente calculada';
+ $('pcSecondaryLabel').textContent=mode==='power'?'Potencia aparente':'Potencia aparente estimada';
+}
+function calculatePowerCurrent(){
+ const mode=$('pcMode').value,sys=$('pcSystem').value,v=Number($('pcVoltage').value),pf=sys==='dc'?1:Number($('pcPf').value);
+ const known=Number(mode==='power'?$('pcCurrent').value:$('pcPower').value);
+ if(!Number.isFinite(v)||v<=0||!Number.isFinite(known)||known<0||!Number.isFinite(pf)||pf<=0||pf>1){
+  $('pcStatus').textContent='Verifica los datos: tensión mayor que cero, valor no negativo y FP entre 0.01 y 1.00.';
+  $('pcStatus').className='status warn';return;
+ }
+ const factor=sys==='dc'?1:(sys==='3'?Math.sqrt(3):1);
+ let kw,amps,kva;
+ if(mode==='power'){amps=known;kw=factor*v*amps*pf/1000;kva=factor*v*amps/1000;}
+ else{kw=known;amps=kw*1000/(factor*v*pf);kva=kw/pf;}
+ $('pcResult').innerHTML=(mode==='power'?kw.toFixed(3):amps.toFixed(2))+' <span class="unit">'+(mode==='power'?'kW':'A')+'</span>';
+ $('pcSecondary').innerHTML=kva.toFixed(3)+' <span class="unit">kVA</span>';
+ $('pcStatus').textContent='Cálculo completado. '+(sys==='3'?'Se utilizó tensión línea a línea.':sys==='dc'?'Cálculo de corriente continua.':'Cálculo monofásico de corriente alterna.');
+ $('pcStatus').className='status';
+}
+$('pcMode').addEventListener('change',updatePcMode);
+$('pcSystem').addEventListener('change',updatePcMode);
+$('pcCalc').addEventListener('click',calculatePowerCurrent);
+$('pcReset').addEventListener('click',()=>{$('pcMode').value='power';$('pcSystem').value='dc';$('pcVoltage').value='240';$('pcCurrent').value='10';$('pcPower').value='2.4';$('pcPf').value='0.90';updatePcMode();calculatePowerCurrent()});
+updatePcMode();calculatePowerCurrent();
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
 calculate();
