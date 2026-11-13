@@ -15,7 +15,10 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 </head>
 <body><main class="wrap">
 <header class="top"><div class="logo">E</div><div><div class="brand">ELECTROPRO GT</div><div class="subbrand">INGENIERÍA ELÉCTRICA</div></div><div class="tag">HERRAMIENTA TÉCNICA</div></header>
-<h1>Conductores eléctricos</h1><p class="intro">Calculadora de caída de tensión. Ingresa la longitud unidireccional en metros y los parámetros del circuito para obtener la caída estimada.</p>
+<h1>Calculadora eléctrica</h1><p class="intro">Selecciona el módulo que necesitas utilizar.</p>
+<div class="field" style="max-width:440px;margin:0 0 22px"><label for="calculatorMenu">Seleccionar cálculo</label><select id="calculatorMenu"><option value="voltage">Caída de tensión en conductores</option><option value="power">Cálculo de potencia y corriente</option></select></div>
+<div id="voltagePanel">
+<p class="intro">Ingresa la longitud unidireccional en metros y los parámetros del circuito para obtener la caída estimada.</p>
 <div class="layout">
 <section class="card"><h2>Parámetros del circuito</h2>
 <div class="fields">
@@ -37,7 +40,8 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div id="status" class="status">Ingresa los datos y calcula.</div>
 <div class="note">Estimación resistiva con K = 12.9 para cobre y K = 21.2 para aluminio. No incluye reactancia, temperatura real de operación, agrupamiento ni factores de corrección de ampacidad.</div>
 </aside></div>
-<section class="card" style="margin-top:20px">
+</div>
+<section id="powerPanel" class="card hidden" style="margin-top:20px">
 <h2>Cálculo de potencia y corriente</h2>
 <p class="intro" style="margin:0 0 18px">Calcula la potencia a partir de la corriente disponible o calcula la corriente a partir de la potencia conocida.</p>
 <div class="fields">
@@ -60,6 +64,13 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 </main>
 <script>
 const $=id=>document.getElementById(id);
+function switchCalculator(){
+ const selected=$('calculatorMenu').value;
+ $('voltagePanel').classList.toggle('hidden',selected!=='voltage');
+ $('powerPanel').classList.toggle('hidden',selected!=='power');
+}
+$('calculatorMenu').addEventListener('change',switchCalculator);
+switchCalculator();
 function calculate(){
  const system=Number($('system').value),k=Number($('material').value),v=Number($('voltage').value),i=Number($('current').value),m=Number($('length').value),area=Number($('area').value);
  if(![v,i,m,area].every(Number.isFinite)||v<=0||i<0||m<0||area<=0){$('status').textContent='Verifica los datos: tensión y área deben ser mayores que cero; corriente y longitud no pueden ser negativas.';$('status').className='status warn';return}
