@@ -16,7 +16,7 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <body><main class="wrap">
 <header class="top"><div class="logo">E</div><div><div class="brand">ELECTROPRO GT</div><div class="subbrand">INGENIERÍA ELÉCTRICA</div></div><div class="tag">HERRAMIENTA TÉCNICA</div></header>
 <h1>Calculadora eléctrica</h1><p class="intro">Selecciona el módulo que necesitas utilizar.</p>
-<div class="field" style="max-width:440px;margin:0 0 22px"><label for="calculatorMenu">Seleccionar cálculo</label><select id="calculatorMenu"><option value="voltage">Caída de tensión en conductores</option><option value="power">Cálculo de potencia y corriente</option><option value="ampacity">Capacidad de corriente del conductor</option><option value="correction">Corrección de ampacidad</option></select></div>
+<div class="field" style="max-width:440px;margin:0 0 22px"><label for="calculatorMenu">Seleccionar cálculo</label><select id="calculatorMenu"><option value="voltage">Caída de tensión en conductores</option><option value="power">Cálculo de potencia y corriente</option><option value="ampacity">Capacidad de corriente del conductor</option><option value="correction">Corrección de ampacidad</option><option value="protection">Dimensionamiento de protección</option></select></div>
 <div id="voltagePanel">
 <p class="intro">Ingresa la longitud unidireccional en metros y los parámetros del circuito para obtener la caída estimada.</p>
 <div class="layout">
@@ -104,6 +104,25 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div class="note">Criterio de referencia: NEC 2023, Tabla 310.16, factores de corrección por temperatura ambiente de la Tabla 310.15(B)(1)(1) y factores de ajuste por cantidad de conductores portadores de corriente de 310.15(C)(1). Se aplica ampacidad de la columna seleccionada × factor de temperatura × factor de agrupamiento.</div>
 <div class="note" style="margin-top:10px">La capacidad final se limita además por la ampacidad correspondiente a la temperatura de terminales seleccionada. No incluye temperatura de suelo, resistividad térmica, instalación en techo expuesto al sol, bandejas, cables multiconductores especiales, carga continua al 125 %, protección contra sobrecorriente ni excepciones del NEC. Requiere revisión de ingeniería antes de usar en diseño.</div>
 </section>
+<section id="protectionPanel" class="card hidden" style="margin-top:20px">
+<h2>Dimensionamiento de protección contra sobrecorriente</h2>
+<p class="intro" style="margin:0 0 18px">Determina una capacidad nominal preliminar de interruptor o fusible a partir de las corrientes de carga continua y no continua.</p>
+<div class="fields">
+<div class="field"><label for="protContinuous">Corriente de carga continua (A)</label><input id="protContinuous" type="number" min="0" step="any" value="0"><div class="hint">Carga prevista para operar durante 3 horas o más.</div></div>
+<div class="field"><label for="protNoncontinuous">Corriente de carga no continua (A)</label><input id="protNoncontinuous" type="number" min="0" step="any" value="40"><div class="hint">Carga que no cumple la definición de carga continua.</div></div>
+<div class="field"><label for="protDevice">Tipo de dispositivo</label><select id="protDevice"><option value="breaker">Interruptor automático</option><option value="fuse">Fusible</option></select></div>
+<div class="field"><label for="protAmpacity">Ampacidad permisible del conductor (A), opcional</label><input id="protAmpacity" type="number" min="0" step="any" placeholder="Ej. 60"><div class="hint">Ingresa la ampacidad final después de correcciones y límites de terminales para comparar.</div></div>
+</div>
+<div class="actions"><button class="primary" id="protCalc">Dimensionar protección</button><button class="secondary" id="protReset">Restablecer</button></div>
+<div class="split" style="margin-top:16px">
+<div class="metric"><div class="k">Carga calculada para dimensionamiento</div><div class="v" id="protLoad">— <span class="unit">A</span></div></div>
+<div class="metric"><div class="k">Capacidad nominal comercial sugerida</div><div class="v" id="protRating">— <span class="unit">A</span></div></div>
+</div>
+<div class="metric" style="margin-top:10px"><div class="k">Desglose del cálculo</div><div id="protBreakdown" style="font-size:14px;color:var(--muted)">Ingresa las corrientes para calcular.</div></div>
+<div id="protStatus" class="status">Pendiente de cálculo.</div>
+<div class="note">Criterio general preliminar: corriente de dimensionamiento = 125 % de la carga continua + 100 % de la carga no continua. Se selecciona el siguiente valor nominal normalizado igual o superior conforme a NEC 240.6(A); considerar NEC 210.20(A) para circuitos derivados y 215.3 para alimentadores, según corresponda.</div>
+<div class="note" style="margin-top:10px">No aplica directamente a motores, transformadores, capacitores, circuitos HVAC ni otras cargas con reglas específicas. La protección final debe coordinarse con la ampacidad del conductor (NEC 240.4), terminales (110.14(C)), corriente de cortocircuito disponible y capacidad interruptiva (110.9 y 110.10), curva de disparo y condiciones reales. La regla del siguiente tamaño de 240.4(B) tiene condiciones y excepciones: no se asume automáticamente.</div>
+</section>
 <p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
 </main>
 <script>
@@ -114,6 +133,7 @@ function switchCalculator(){
  $('powerPanel').classList.toggle('hidden',selected!=='power');
  $('ampacityPanel').classList.toggle('hidden',selected!=='ampacity');
  $('correctionPanel').classList.toggle('hidden',selected!=='correction');
+ $('protectionPanel').classList.toggle('hidden',selected!=='protection');
 }
 $('calculatorMenu').addEventListener('change',switchCalculator);
 switchCalculator();
@@ -213,7 +233,31 @@ function calculateCorrection(){
 $('corrCalc').addEventListener('click',calculateCorrection);
 ['corrMaterial','corrGauge','corrInsulation','corrAmbient','corrConductors','corrTerminal'].forEach(id=>$(id).addEventListener('change',calculateCorrection));
 $('corrReset').addEventListener('click',()=>{$('corrMaterial').value='cu';$('corrGauge').value='2';$('corrInsulation').value='1';$('corrAmbient').value='40';$('corrConductors').value='0.8';$('corrTerminal').value='1';calculateCorrection()});
-updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();
+const standardRatings=[1,2,3,4,5,6,10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200,1600,2000,2500,3000,4000,5000,6000];
+function calculateProtection(){
+ const cont=Number($('protContinuous').value),noncont=Number($('protNoncontinuous').value);
+ const ampText=$('protAmpacity').value.trim(),amp=ampText===''?null:Number(ampText);
+ if(!Number.isFinite(cont)||!Number.isFinite(noncont)||cont<0||noncont<0||cont+noncont<=0||(amp!==null&&(!Number.isFinite(amp)||amp<=0))){
+  $('protStatus').textContent='Ingresa corrientes válidas; al menos una debe ser mayor que cero. La ampacidad opcional debe ser mayor que cero.';
+  $('protStatus').className='status warn';return;
+ }
+ const required=cont*1.25+noncont;
+ const rating=standardRatings.find(x=>x>=required);
+ $('protLoad').innerHTML=required.toFixed(2)+' <span class="unit">A</span>';
+ $('protRating').innerHTML=rating?rating+' <span class="unit">A</span>':'Fuera de rango';
+ $('protBreakdown').textContent='( '+cont.toFixed(2)+' A × 1.25 ) + '+noncont.toFixed(2)+' A = '+required.toFixed(2)+' A. Dispositivo: '+($('protDevice').value==='breaker'?'interruptor automático':'fusible')+'.';
+ let msg=rating?'Selección nominal preliminar: '+rating+' A.':'La corriente calculada supera los valores normalizados incluidos en esta herramienta.';
+ let warn=false;
+ if(rating&&amp!==null&&rating>amp){msg+=' ADVERTENCIA: el valor nominal sugerido supera la ampacidad ingresada del conductor ('+amp.toFixed(2)+' A); revisa NEC 240.4 y determina si alguna regla o excepción es aplicable.';warn=true;}
+ else if(rating&&amp!==null){msg+=' El valor nominal no supera la ampacidad ingresada; aún debe verificarse la coordinación y las reglas aplicables.';}
+ else if(rating){msg+=' No se ingresó ampacidad del conductor; no se ha verificado la protección contra sobrecorriente respecto al conductor.';warn=true;}
+ $('protStatus').textContent=msg;
+ $('protStatus').className=warn?'status warn':'status';
+}
+$('protCalc').addEventListener('click',calculateProtection);
+$('protReset').addEventListener('click',()=>{$('protContinuous').value='0';$('protNoncontinuous').value='40';$('protDevice').value='breaker';$('protAmpacity').value='';calculateProtection()});
+['protContinuous','protNoncontinuous','protDevice','protAmpacity'].forEach(id=>$(id).addEventListener('change',calculateProtection));
+updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();calculateProtection();
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
 calculate();
