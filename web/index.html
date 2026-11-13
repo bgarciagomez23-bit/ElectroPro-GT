@@ -16,7 +16,7 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <body><main class="wrap">
 <header class="top"><div class="logo">E</div><div><div class="brand">ELECTROPRO GT</div><div class="subbrand">INGENIERÍA ELÉCTRICA</div></div><div class="tag">HERRAMIENTA TÉCNICA</div></header>
 <h1>Calculadora eléctrica</h1><p class="intro">Selecciona el módulo que necesitas utilizar.</p>
-<div class="field" style="max-width:440px;margin:0 0 22px"><label for="calculatorMenu">Seleccionar cálculo</label><select id="calculatorMenu"><option value="voltage">Caída de tensión en conductores</option><option value="power">Cálculo de potencia y corriente</option><option value="ampacity">Capacidad de corriente del conductor</option></select></div>
+<div class="field" style="max-width:440px;margin:0 0 22px"><label for="calculatorMenu">Seleccionar cálculo</label><select id="calculatorMenu"><option value="voltage">Caída de tensión en conductores</option><option value="power">Cálculo de potencia y corriente</option><option value="ampacity">Capacidad de corriente del conductor</option><option value="correction">Corrección de ampacidad</option></select></div>
 <div id="voltagePanel">
 <p class="intro">Ingresa la longitud unidireccional en metros y los parámetros del circuito para obtener la caída estimada.</p>
 <div class="layout">
@@ -79,6 +79,31 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div class="note">Referencia: NEC 2023, Tabla 310.16, condiciones de referencia de 30 °C ambiente, no más de tres conductores portadores de corriente en canalización/cable o enterramiento directo. Los valores son ampacidades tabuladas, no necesariamente la corriente final permitida en la instalación.</div>
 <div class="note" style="margin-top:10px">La ampacidad final puede estar limitada por la temperatura de terminales (NEC 110.14(C)), correcciones por temperatura ambiente y agrupamiento (310.15), número de conductores portadores de corriente y reglas específicas del circuito. Para conductores pequeños también aplican restricciones de protección y uso. No uses automáticamente la columna de 90 °C como capacidad final.</div>
 </section>
+<section id="correctionPanel" class="card hidden" style="margin-top:20px">
+<h2>Corrección de capacidad de corriente</h2>
+<p class="intro" style="margin:0 0 18px">Calcula la ampacidad corregida por temperatura ambiente y cantidad de conductores portadores de corriente, con verificación del límite de temperatura de terminales.</p>
+<div class="fields">
+<div class="field"><label for="corrMaterial">Material</label><select id="corrMaterial"><option value="cu">Cobre</option><option value="al">Aluminio</option></select></div>
+<div class="field"><label for="corrGauge">Calibre</label><select id="corrGauge">
+<option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2" selected>2 AWG</option><option value="1">1 AWG</option><option value="1/0">1/0 AWG</option><option value="2/0">2/0 AWG</option><option value="3/0">3/0 AWG</option><option value="4/0">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="400">400 kcmil</option><option value="500">500 kcmil</option><option value="600">600 kcmil</option><option value="700">700 kcmil</option><option value="750">750 kcmil</option><option value="800">800 kcmil</option><option value="900">900 kcmil</option><option value="1000">1000 kcmil</option>
+</select></div>
+<div class="field"><label for="corrInsulation">Temperatura nominal del aislamiento</label><select id="corrInsulation"><option value="0">60 °C</option><option value="1" selected>75 °C</option><option value="2">90 °C</option></select></div>
+<div class="field"><label for="corrAmbient">Temperatura ambiente (°C)</label><input id="corrAmbient" type="number" min="-10" max="85" step="1" value="40"><div class="hint">Temperatura del ambiente alrededor de la canalización/cable.</div></div>
+<div class="field"><label for="corrConductors">Conductores portadores de corriente</label><select id="corrConductors"><option value="1">1 a 3</option><option value="0.8" selected>4 a 6</option><option value="0.7">7 a 9</option><option value="0.5">10 a 20</option><option value="0.45">21 a 30</option><option value="0.4">31 a 40</option><option value="0.35">41 o más</option></select><div class="hint">No cuentes neutros que cumplan las condiciones para no considerarse portadores de corriente.</div></div>
+<div class="field"><label for="corrTerminal">Temperatura nominal de terminales</label><select id="corrTerminal"><option value="0">60 °C</option><option value="1" selected>75 °C</option><option value="2">90 °C</option></select><div class="hint">Confirma la clasificación marcada en el equipo y NEC 110.14(C).</div></div>
+</div>
+<div class="actions"><button class="primary" id="corrCalc">Calcular corrección</button><button class="secondary" id="corrReset">Restablecer</button></div>
+<div class="split" style="margin-top:16px">
+<div class="metric"><div class="k">Ampacidad tabulada</div><div class="v" id="corrBase">— <span class="unit">A</span></div></div>
+<div class="metric"><div class="k">Factor combinado</div><div class="v" id="corrFactor">—</div></div>
+<div class="metric"><div class="k">Ampacidad corregida</div><div class="v" id="corrAdjusted">— <span class="unit">A</span></div></div>
+<div class="metric"><div class="k">Límite por terminal</div><div class="v" id="corrTerminalLimit">— <span class="unit">A</span></div></div>
+</div>
+<div class="metric" style="margin-top:10px"><div class="k">Capacidad final de referencia (menor de los dos límites)</div><div class="v" id="corrFinal">— <span class="unit">A</span></div></div>
+<div id="corrStatus" class="status">Ingresa las condiciones de instalación.</div>
+<div class="note">Criterio de referencia: NEC 2023, Tabla 310.16, factores de corrección por temperatura ambiente de la Tabla 310.15(B)(1)(1) y factores de ajuste por cantidad de conductores portadores de corriente de 310.15(C)(1). Se aplica ampacidad de la columna seleccionada × factor de temperatura × factor de agrupamiento.</div>
+<div class="note" style="margin-top:10px">La capacidad final se limita además por la ampacidad correspondiente a la temperatura de terminales seleccionada. No incluye temperatura de suelo, resistividad térmica, instalación en techo expuesto al sol, bandejas, cables multiconductores especiales, carga continua al 125 %, protección contra sobrecorriente ni excepciones del NEC. Requiere revisión de ingeniería antes de usar en diseño.</div>
+</section>
 <p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
 </main>
 <script>
@@ -88,6 +113,7 @@ function switchCalculator(){
  $('voltagePanel').classList.toggle('hidden',selected!=='voltage');
  $('powerPanel').classList.toggle('hidden',selected!=='power');
  $('ampacityPanel').classList.toggle('hidden',selected!=='ampacity');
+ $('correctionPanel').classList.toggle('hidden',selected!=='correction');
 }
 $('calculatorMenu').addEventListener('change',switchCalculator);
 switchCalculator();
@@ -155,7 +181,39 @@ $('ampMaterial').addEventListener('change',calculateAmpacity);
 $('ampGauge').addEventListener('change',calculateAmpacity);
 $('ampTemp').addEventListener('change',calculateAmpacity);
 $('ampReset').addEventListener('click',()=>{$('ampMaterial').value='cu';$('ampGauge').value='2';$('ampTemp').value='1';calculateAmpacity()});
-updatePcMode();calculatePowerCurrent();calculateAmpacity();
+function ambientFactor(celsius,tempIndex){
+ const ranges=[
+ [-10,10,[1.29,1.20,1.15]],[11,15,[1.22,1.15,1.12]],[16,20,[1.15,1.11,1.08]],
+ [21,25,[1.08,1.05,1.04]],[26,30,[1,1,1]],[31,35,[0.91,0.94,0.96]],
+ [36,40,[0.82,0.88,0.91]],[41,45,[0.71,0.82,0.87]],[46,50,[0.58,0.75,0.82]],
+ [51,55,[0.41,0.67,0.76]],[56,60,[null,0.58,0.71]],[61,65,[null,0.47,0.65]],
+ [66,70,[null,0.33,0.58]],[71,75,[null,null,0.50]],[76,80,[null,null,0.41]],[81,85,[null,null,0.29]]
+ ];
+ const range=ranges.find(r=>celsius>=r[0]&&celsius<=r[1]);
+ return range?range[2][tempIndex]:null;
+}
+function calculateCorrection(){
+ const mat=$('corrMaterial').value,gauge=$('corrGauge').value,ins=Number($('corrInsulation').value);
+ const terminal=Number($('corrTerminal').value),ambient=Number($('corrAmbient').value),group=Number($('corrConductors').value);
+ const row=ampacityTable[mat][gauge],base=row?row[ins]:null,terminalLimit=row?row[terminal]:null;
+ const tf=ambientFactor(ambient,ins);
+ if(!row||!Number.isFinite(ambient)||ambient < -10||ambient>85||tf===null){
+  $('corrStatus').textContent='No hay un factor aplicable para esta combinación. Revisa la temperatura ambiente, aislamiento y calibre.';
+  $('corrStatus').className='status warn';return;
+ }
+ const combined=tf*group,adjusted=base*combined,finalValue=Math.min(adjusted,terminalLimit);
+ $('corrBase').innerHTML=base+' <span class="unit">A</span>';
+ $('corrFactor').textContent=tf.toFixed(2)+' × '+group.toFixed(2)+' = '+combined.toFixed(3);
+ $('corrAdjusted').innerHTML=adjusted.toFixed(1)+' <span class="unit">A</span>';
+ $('corrTerminalLimit').innerHTML=terminalLimit+' <span class="unit">A</span>';
+ $('corrFinal').innerHTML=finalValue.toFixed(1)+' <span class="unit">A</span>';
+ $('corrStatus').textContent=adjusted<=terminalLimit?'La ampacidad corregida es el límite determinante.':'El límite de temperatura de terminales reduce la ampacidad disponible.';
+ $('corrStatus').className='status';
+}
+$('corrCalc').addEventListener('click',calculateCorrection);
+['corrMaterial','corrGauge','corrInsulation','corrAmbient','corrConductors','corrTerminal'].forEach(id=>$(id).addEventListener('change',calculateCorrection));
+$('corrReset').addEventListener('click',()=>{$('corrMaterial').value='cu';$('corrGauge').value='2';$('corrInsulation').value='1';$('corrAmbient').value='40';$('corrConductors').value='0.8';$('corrTerminal').value='1';calculateCorrection()});
+updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
 calculate();
