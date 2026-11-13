@@ -254,17 +254,6 @@ $('exportCsv').addEventListener('click',()=>{
  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ElectroPro_GT_reporte.csv';a.click();URL.revokeObjectURL(url);
 });
 refreshSavedCount();
-function switchCalculator(){
- const selected=$('calculatorMenu').value;
- $('voltagePanel').classList.toggle('hidden',selected!=='voltage');
- $('powerPanel').classList.toggle('hidden',selected!=='power');
- $('ampacityPanel').classList.toggle('hidden',selected!=='ampacity');
- $('correctionPanel').classList.toggle('hidden',selected!=='correction');
- $('protectionPanel').classList.toggle('hidden',selected!=='protection');
- $('conduitPanel').classList.toggle('hidden',selected!=='conduit');
-}
-$('calculatorMenu').addEventListener('change',switchCalculator);
-switchCalculator();
 function calculate(){
  const system=Number($('system').value),k=Number($('material').value),v=Number($('voltage').value),i=Number($('current').value),m=Number($('length').value),area=Number($('area').value);
  if(![v,i,m,area].every(Number.isFinite)||v<=0||i<0||m<0||area<=0){$('status').textContent='Verifica los datos: tensión y área deben ser mayores que cero; corriente y longitud no pueden ser negativas.';$('status').className='status warn';return}
