@@ -25,7 +25,10 @@ h1{font-size:clamp(27px,4vw,38px);line-height:1.12;margin:0 0 9px}.intro{color:v
 <div class="field"><label for="voltage">Tensión del sistema (V)</label><input id="voltage" type="number" min="1" step="any" value="240"></div>
 <div class="field"><label for="current">Corriente (A)</label><input id="current" type="number" min="0" step="any" value="40"></div>
 <div class="field"><label for="length">Longitud unidireccional (m)</label><input id="length" type="number" min="0" step="any" value="30.48"><div class="hint">Distancia de recorrido en un solo sentido.</div></div>
-<div class="field"><label for="area">Área del conductor (CM)</label><input id="area" type="number" min="1" step="any" value="66360"><div class="hint">Área en circular mils (CM), no mm².</div></div>
+<div class="field"><label for="gauge">Calibre del conductor</label><select id="gauge">
+<option value="4110">14 AWG</option><option value="6530">12 AWG</option><option value="10380">10 AWG</option><option value="16510">8 AWG</option><option value="26240">6 AWG</option><option value="41740">4 AWG</option><option value="52620">3 AWG</option><option value="66360" selected>2 AWG</option><option value="83690">1 AWG</option><option value="105600">1/0 AWG</option><option value="133100">2/0 AWG</option><option value="167800">3/0 AWG</option><option value="211600">4/0 AWG</option><option value="250000">250 kcmil</option><option value="300000">300 kcmil</option><option value="350000">350 kcmil</option><option value="400000">400 kcmil</option><option value="500000">500 kcmil</option><option value="600000">600 kcmil</option><option value="700000">700 kcmil</option><option value="750000">750 kcmil</option><option value="800000">800 kcmil</option><option value="900000">900 kcmil</option><option value="1000000">1000 kcmil</option><option value="custom">Otro / ingresar área manualmente</option>
+</select><div class="hint">Selecciona el calibre AWG o kcmil; el área se cargará automáticamente.</div></div>
+<div class="field"><label for="area">Área del conductor (CM)</label><input id="area" type="number" min="1" step="any" value="66360"><div class="hint">Área en circular mils (CM). Puedes editarla si seleccionas “Otro”.</div></div>
 </div><div class="actions"><button class="primary" id="calc">Calcular caída</button><button class="secondary" id="reset">Restablecer</button></div>
 </section>
 <aside class="card result"><h2>Resultado del cálculo</h2>
@@ -51,6 +54,7 @@ function calculate(){
  $('status').textContent=pct>5?'Caída elevada: revisa el diseño y los criterios aplicables.':'Cálculo completado. Verifica el porcentaje según el criterio de diseño aplicable.';
  $('status').className=pct>5?'status warn':'status';
 }
+$('gauge').addEventListener('change',()=>{const selected=$('gauge').value;if(selected!=='custom')$('area').value=selected;else $('area').focus();calculate()});
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
 calculate();
