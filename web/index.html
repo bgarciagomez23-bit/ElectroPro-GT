@@ -68,6 +68,7 @@ body{background:#080e14}
 <button class="calc-tile" data-panel="protection"><span class="tile-icon">⬟</span><strong>Protección general</strong><span>Carga continua/no continua</span></button>
 <button class="calc-tile" data-panel="conduit"><span class="tile-icon">◯</span><strong>Canalización</strong><span>EMT, IMC, RMC y PVC</span></button>
 <button class="calc-tile" data-panel="ampacity"><span class="tile-icon">▦</span><strong>Ampacidad de conductor</strong><span>Capacidad según calibre y material</span></button>
+<button class="calc-tile" data-panel="integral"><span class="tile-icon">⌘</span><strong>Diseño integral de circuitos</strong><span>Conductor, protección, tierra y canalización</span></button>
 </div>
 </section>
 <section id="guidePanel" class="card hidden guide-panel">
@@ -213,13 +214,50 @@ body{background:#080e14}
 <div class="note">Referencia: NEC 2023, Capítulo 9, Tabla 1 (porcentaje de llenado), Tabla 4 (área interior de canalizaciones) y Tabla 5 (área de conductores aislados). Se incluye el área del aislamiento, no solamente el área de cobre o aluminio.</div>
 <div class="note" style="margin-top:10px">Alcance actual: conductores individuales redondos THHN/THWN-2, XHHW-2 y THW en calibres listados; canalizaciones EMT, PVC cédula 40/80 y RMC de 1/2" a 4". No incluye cables multiconductores, conductores en paralelo con reglas especiales, nipples de 24" o menos, bandejas, ocupación de accesorios ni verificación de radios/tensión de jalado. El llenado no sustituye la revisión de ampacidad y agrupamiento. Verifica los datos de la edición NEC adoptada y las especificaciones del fabricante.</div>
 </section>
-</div>\n<nav class="bottom-nav"><button class="nav-item active" id="navCalc"><span>▣</span>Calculadora</button><button class="nav-item" id="navGuide"><span>▤</span>Guía NEC</button></nav>\n<p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
+</div>\n<nav class="bottom-nav"><button class="nav-item active" id="navCalc"><span>▣</span>Calculadora</button><button class="nav-item" id="navGuide"><span>▤</span>Guía NEC</button></nav>\n<section id="integralPanel" class="card hidden" style="margin-top:20px">
+<h2>Diseño integral de circuitos</h2>
+<p class="intro" style="margin:0 0 18px">Ingresa los datos de un circuito. Se propone conductor por caída de tensión y ampacidad, protección, conductor de puesta a tierra y canalización.</p>
+<div class="fields">
+<div class="field full"><label for="intDescription">Descripción del circuito</label><input id="intDescription" type="text" maxlength="120" placeholder="Ej. Alimentador tablero T-01"></div>
+<div class="field"><label for="intLength">Longitud unidireccional (m)</label><input id="intLength" type="number" min="0.1" step="any" value="30"></div>
+<div class="field"><label for="intVoltage">Tensión (V)</label><input id="intVoltage" type="number" min="1" step="any" value="208"></div>
+<div class="field"><label for="intSystem">Sistema</label><select id="intSystem"><option value="1">Monofásico</option><option value="3" selected>Trifásico</option><option value="dc">Corriente continua (DC)</option></select></div>
+<div class="field"><label for="intInputMode">Dato de carga disponible</label><select id="intInputMode"><option value="power">Potencia (kW)</option><option value="current">Corriente (A)</option></select></div>
+<div class="field"><label for="intPower">Potencia activa (kW)</label><input id="intPower" type="number" min="0.001" step="any" value="15"></div>
+<div class="field hidden" id="intCurrentField"><label for="intCurrent">Corriente de carga (A)</label><input id="intCurrent" type="number" min="0.001" step="any" value="50"></div>
+<div class="field"><label for="intPf">Factor de potencia</label><input id="intPf" type="number" min="0.01" max="1" step="0.01" value="0.90"></div>
+<div class="field"><label for="intLoadType">Tipo de carga</label><select id="intLoadType"><option value="noncontinuous">No continua</option><option value="continuous">Continua (3 horas o más)</option></select></div>
+<div class="field"><label for="intMaterial">Material del conductor</label><select id="intMaterial"><option value="cu">Cobre</option><option value="al">Aluminio</option></select></div>
+<div class="field"><label for="intInsulation">Aislamiento / temperatura</label><select id="intInsulation"><option value="0">60 °C</option><option value="1" selected>75 °C</option><option value="2">90 °C</option></select></div>
+<div class="field"><label for="intAmbient">Temperatura ambiente (°C)</label><input id="intAmbient" type="number" min="-10" max="85" value="30"></div>
+<div class="field"><label for="intConductors">Conductores portadores de corriente</label><select id="intConductors"><option value="1">1 a 3</option><option value="0.8">4 a 6</option><option value="0.7">7 a 9</option><option value="0.5">10 a 20</option><option value="0.45">21 a 30</option><option value="0.4">31 a 40</option><option value="0.35">41 o más</option></select></div>
+<div class="field"><label for="intTerminal">Temperatura nominal de terminales</label><select id="intTerminal"><option value="0">60 °C</option><option value="1" selected>75 °C</option><option value="2">90 °C</option></select></div>
+<div class="field"><label for="intDropLimit">Caída máxima objetivo (%)</label><input id="intDropLimit" type="number" min="0.1" max="10" step="0.1" value="3"></div>
+<div class="field"><label for="intConduit">Tipo de canalización</label><select id="intConduit"><option value="emt">EMT</option><option value="pvc40">PVC cédula 40</option><option value="pvc80">PVC cédula 80</option><option value="rnc">RMC</option></select></div>
+<div class="field"><label for="intNeutral">Neutro dentro de canalización</label><select id="intNeutral"><option value="yes">Sí</option><option value="no">No</option></select></div>
+</div>
+<div class="actions"><button class="primary" id="intCalc">Dimensionar circuito</button><button class="secondary" id="intReset">Restablecer</button></div>
+<div id="intStatus" class="status" style="margin-top:16px">Ingresa los datos para dimensionar el circuito.</div>
+<div class="split" style="margin-top:16px">
+<div class="metric"><div class="k">Corriente calculada</div><div class="v" id="intResultCurrent">— <span class="unit">A</span></div></div>
+<div class="metric"><div class="k">Corriente de diseño</div><div class="v" id="intDesignCurrent">— <span class="unit">A</span></div></div>
+<div class="metric"><div class="k">Conductor de fase seleccionado</div><div class="v" id="intPhaseGauge">—</div><div class="hint" id="intPhaseDetail"></div></div>
+<div class="metric"><div class="k">Caída de tensión estimada</div><div class="v" id="intDrop">— <span class="unit">%</span></div><div class="hint" id="intDropDetail"></div></div>
+<div class="metric"><div class="k">Protección preliminar</div><div class="v" id="intProtection">—</div><div class="hint" id="intProtectionDetail"></div></div>
+<div class="metric"><div class="k">Conductor de tierra física (PE)</div><div class="v" id="intGround">—</div><div class="hint" id="intGroundDetail">Según NEC 250.122, en función de la protección.</div></div>
+<div class="metric"><div class="k">Canalización recomendada</div><div class="v" id="intConduitResult">—</div><div class="hint" id="intConduitDetail"></div></div>
+</div>
+<div class="metric" style="margin-top:10px"><div class="k">Resumen de conductores y criterios</div><div id="intSummary" style="font-size:13px;color:var(--muted);white-space:pre-line">Pendiente de cálculo.</div></div>
+<div class="note" style="margin-top:12px">Criterios de referencia: caída de tensión resistiva con K=12.9 Cu / 21.2 Al; ampacidad NEC 310.16 con corrección por temperatura y agrupamiento y límite de terminales 110.14(C); protección preliminar NEC 210.20(A), 215.3 y 240.6(A); conductor de puesta a tierra de equipos NEC 250.122; llenado NEC Capítulo 9. El calibre de fase se selecciona para cumplir simultáneamente caída objetivo y ampacidad disponible.</div>
+<div class="note" style="margin-top:10px">Este dimensionamiento es una propuesta preliminar para circuitos generales. No sustituye cálculos específicos de motores, transformadores, HVAC, cargas no lineales, conductores en paralelo, coordinación selectiva, cortocircuito, capacidad interruptiva, caída transitoria, demanda, neutro por armónicos, ni reglas especiales. La selección final requiere verificar condiciones reales, método de instalación, terminales, excepciones del NEC y normativa local. El conductor PE se dimensiona por la protección seleccionada; si los conductores aumentan por caída de tensión, revisa también el ajuste proporcional de 250.122(B).</div>
+</section>
+<p class="foot"><strong>Nota técnica:</strong> Este resultado es una estimación y no constituye por sí solo una verificación de cumplimiento NEC. Confirma ampacidad, protección, método de instalación y condiciones reales del circuito antes de especificar el conductor.</p>
 </main>
 <script>
 const $=id=>document.getElementById(id);
 let currentPanel='power';
-const panelNames={power:'Potencia & corriente',correction:'Dimensionar conductor',voltage:'Caída de tensión',protection:'Protección general',conduit:'Canalización',ampacity:'Ampacidad de conductor'};
-const panels=['voltage','power','ampacity','correction','protection','conduit'];
+const panelNames={power:'Potencia & corriente',correction:'Dimensionar conductor',voltage:'Caída de tensión',protection:'Protección general',conduit:'Canalización',ampacity:'Ampacidad de conductor',integral:'Diseño integral de circuitos'};
+const panels=['voltage','power','ampacity','correction','protection','conduit','integral'];
 function showPanel(name){
  currentPanel=name;
  $('homeDashboard').classList.add('hidden');$('guidePanel').classList.add('hidden');$('calculatorWorkspace').classList.remove('hidden');
@@ -442,7 +480,75 @@ $('conduitCalc').addEventListener('click',calculateConduit);
 $('conduitReset').addEventListener('click',()=>{$('conduitType').value='emt';$('conduitMode').value='minimum';$('conduitSize').value='0';$('conduitRows').innerHTML='';conduitRowId=0;addConduitRow('thhn','12','4');updateConduitMode();calculateConduit()});
 ['conduitType','conduitSize'].forEach(id=>$(id).addEventListener('change',calculateConduit));
 addConduitRow('thhn','12','4');
-updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();calculateProtection();updateConduitMode();calculateConduit();
+function updateIntegralMode(){$('intCurrentField').classList.toggle('hidden',$('intInputMode').value!=='current');$('intPf').disabled=$('intSystem').value==='dc';}
+$('intInputMode').addEventListener('change',updateIntegralMode);$('intSystem').addEventListener('change',updateIntegralMode);
+const gaugeOrder=['14','12','10','8','6','4','3','2','1','1/0','2/0','3/0','4/0','250','300','350','400','500','600','700','750','800','900','1000'];
+const cmAreas={'14':4110,'12':6530,'10':10380,'8':16510,'6':26240,'4':41740,'3':52620,'2':66360,'1':83690,'1/0':105600,'2/0':133100,'3/0':167800,'4/0':211600,'250':250000,'300':300000,'350':350000,'400':400000,'500':500000,'600':600000,'700':700000,'750':750000,'800':800000,'900':900000,'1000':1000000};
+const nominalOcpd=[15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200,1600,2000,2500,3000,4000,5000,6000];
+function egcCopper(ocpd){
+ const t=[[15,'14'],[20,'12'],[60,'10'],[100,'8'],[200,'6'],[300,'4'],[400,'3'],[500,'2'],[600,'1'],[800,'1/0'],[1000,'2/0'],[1200,'3/0'],[1600,'4/0'],[2000,'250'],[2500,'350'],[3000,'400'],[4000,'500'],[5000,'700'],[6000,'800']];
+ return (t.find(x=>ocpd<=x[0])||[])[1]||'800';
+}
+function calculateIntegral(){
+ const len=Number($('intLength').value),v=Number($('intVoltage').value),pf=$('intSystem').value==='dc'?1:Number($('intPf').value);
+ const system=$('intSystem').value,mode=$('intInputMode').value,known=Number(mode==='power'?$('intPower').value:$('intCurrent').value);
+ const continuous=$('intLoadType').value==='continuous',mat=$('intMaterial').value,ins=Number($('intInsulation').value),terminal=Number($('intTerminal').value),ambient=Number($('intAmbient').value),group=Number($('intConductors').value),dropLimit=Number($('intDropLimit').value);
+ if(!Number.isFinite(len)||len<=0||!Number.isFinite(v)||v<=0||!Number.isFinite(known)||known<=0||!Number.isFinite(pf)||pf<=0||pf>1||!Number.isFinite(ambient)||ambient < -10||ambient>85||!Number.isFinite(dropLimit)||dropLimit<=0||dropLimit>10){
+  $('intStatus').textContent='Verifica metraje, tensión, carga, FP, temperatura ambiente (-10 a 85 °C) y caída objetivo (0 a 10 %).';$('intStatus').className='status warn';return;
+ }
+ const factor=system==='dc'?1:system==='3'?Math.sqrt(3):1;
+ const current=mode==='current'?known:known*1000/(factor*v*pf);
+ const design=current*(continuous?1.25:1);
+ const requiredOcpd=design,ocpd=nominalOcpd.find(x=>x>=requiredOcpd);
+ const tf=ambientFactor(ambient,ins);
+ if(tf===null){$('intStatus').textContent='No hay factor de temperatura disponible para esta combinación.';$('intStatus').className='status warn';return;}
+ if(!ocpd){$('intStatus').textContent='La protección calculada excede el rango de valores normalizados de esta herramienta.';$('intStatus').className='status warn';return;}
+ const lengthFt=len/0.3048,K=mat==='cu'?12.9:21.2,phaseMultiplier=system==='3'?Math.sqrt(3):system==='dc'?2:2;
+ const cableKeys=mat==='cu'?gaugeOrder:gaugeOrder.filter(g=>g!=='14');
+ let selected=null,selectedAmp=null,selectedDrop=null,selectedOcpd=null,selectedAdj=null;
+ for(const g of cableKeys){
+  const row=ampacityTable[mat][g];if(!row)continue;
+  const base=row[ins],terminalLimit=row[terminal],adjusted=base*tf*group,available=Math.min(adjusted,terminalLimit);
+  if(mat==='cu'&&g==='14'&&ocpd>15)continue;
+  if(mat==='cu'&&g==='12'&&ocpd>20)continue;
+  if(mat==='cu'&&g==='10'&&ocpd>30)continue;
+  if(available+1e-8<design||available+1e-8<ocpd)continue;
+  const drop=phaseMultiplier*K*current*lengthFt/cmAreas[g],pct=drop/v*100;
+  if(pct<=dropLimit){selected=g;selectedAmp=available;selectedDrop=pct;selectedAdj=adjusted;break;}
+ }
+ if(!selected){
+  $('intStatus').textContent='No se encontró un calibre dentro de la tabla disponible que cumpla simultáneamente ampacidad y caída de tensión. Revisa parámetros, método de instalación o amplía la tabla.';$('intStatus').className='status warn';return;
+ }
+ let protection=ocpd;
+ // Recalcula el calibre para comprobar la protección comercial y el límite de ampacidad.
+ if(selectedAmp<protection){$('intStatus').textContent='El conductor seleccionado no soporta la protección preliminar. Revisa condiciones y criterios.';$('intStatus').className='status warn';return;}
+ const egc=egcCopper(protection);
+ const egcLabel=Number(egc)>=250?egc+' kcmil':egc+' AWG';
+ const phaseLabel=Number(selected)>=250?selected+' kcmil':selected+' AWG';
+ const phases=system==='3'?3:2,neutral=$('intNeutral').value==='yes'?1:0,wireCount=phases+neutral+1;
+ const insType='thhn',wireArea=wireAreas[insType][selected],egcArea=wireAreas[insType][egc];
+ const totalArea=wireArea*wireCount+egcArea,fill=wireCount+1===1?0.53:wireCount+1===2?0.31:0.40;
+ const cArea=conduitAreas[$('intConduit').value],idx=cArea.findIndex(a=>a*fill>=totalArea);
+ const sizeNames=['1/2"','3/4"','1"','1-1/4"','1-1/2"','2"','2-1/2"','3"','3-1/2"','4"'];
+ const conduitLabel={emt:'EMT',pvc40:'PVC cédula 40',pvc80:'PVC cédula 80',rnc:'RMC'}[$('intConduit').value];
+ $('intResultCurrent').innerHTML=current.toFixed(2)+' <span class="unit">A</span>';
+ $('intDesignCurrent').innerHTML=design.toFixed(2)+' <span class="unit">A</span>';
+ $('intPhaseGauge').textContent=phaseLabel;
+ $('intPhaseDetail').textContent=mat==='cu'?'Cobre':'Aluminio'; 
+ $('intDrop').innerHTML=selectedDrop.toFixed(2)+' <span class="unit">%</span>';
+ $('intDropDetail').textContent='Objetivo: '+dropLimit.toFixed(1)+' % · caída resistiva estimada.';
+ $('intProtection').textContent=protection+' A';
+ $('intProtectionDetail').textContent='Interruptor/fusible preliminar; confirmar curva, capacidad interruptiva y regla aplicable.';
+ $('intGround').textContent=egcLabel+' Cu';
+ $('intGroundDetail').textContent='Tabla NEC 250.122 para '+protection+' A; revisar 250.122(B) si se aumenta fase por caída de tensión.';
+ $('intConduitResult').textContent=idx<0?'Mayor a 4"':sizeNames[idx]+' '+conduitLabel;
+ $('intConduitDetail').textContent=idx<0?'No cabe en el rango de tamaños de esta herramienta.':'Ocupación '+(totalArea/cArea[idx]*100).toFixed(1)+' % · límite '+(fill*100).toFixed(0)+' %.';
+ $('intSummary').textContent='Circuito: '+($('intDescription').value.trim()||'Sin descripción')+'\nFases: '+phases+' × '+phaseLabel+' '+mat.toUpperCase()+' THHN/THWN-2\nNeutro: '+(neutral?'1 × '+phaseLabel:'No incluido')+' (supuesto mismo calibre de fase)\nTierra PE: 1 × '+egcLabel+' cobre\nAmpacidad disponible calculada: '+selectedAmp.toFixed(1)+' A (factor temp. '+tf.toFixed(2)+' × agrupamiento '+group.toFixed(2)+')\nCanalización: '+(idx<0?'Requiere mayor de 4"':sizeNames[idx]+' '+conduitLabel)+'; área total conductores '+totalArea.toFixed(4)+' in².';
+ $('intStatus').textContent='Dimensionamiento preliminar completado. El calibre seleccionado cumple los criterios ingresados de ampacidad y caída de tensión. Verifica las notas y supuestos antes de emitir diseño.';$('intStatus').className='status';
+}
+$('intCalc').addEventListener('click',calculateIntegral);
+$('intReset').addEventListener('click',()=>{$('intDescription').value='';$('intLength').value='30';$('intVoltage').value='208';$('intSystem').value='3';$('intInputMode').value='power';$('intPower').value='15';$('intCurrent').value='50';$('intPf').value='0.90';$('intLoadType').value='noncontinuous';$('intMaterial').value='cu';$('intInsulation').value='1';$('intAmbient').value='30';$('intConductors').value='1';$('intTerminal').value='1';$('intDropLimit').value='3';$('intConduit').value='emt';$('intNeutral').value='yes';updateIntegralMode();$('intStatus').textContent='Ingresa los datos para dimensionar el circuito.';$('intStatus').className='status';});
+updatePcMode();calculatePowerCurrent();calculateAmpacity();calculateCorrection();calculateProtection();updateConduitMode();calculateConduit();updateIntegralMode();
 $('calc').addEventListener('click',calculate);
 $('reset').addEventListener('click',()=>{ $('system').value='1';$('material').value='12.9';$('conductorType').value='THHN/THWN-2';$('voltage').value='240';$('current').value='40';$('length').value='30.48';$('area').value='66360';calculate()});
 calculate();
