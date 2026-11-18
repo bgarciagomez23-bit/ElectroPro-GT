@@ -1,22 +1,24 @@
 # ElectroPro GT
 
-Aplicación Android para ingeniería eléctrica, orientada a proyectos profesionales en Guatemala.
+Aplicación de apoyo para cálculos de ingeniería eléctrica, orientada a proyectos profesionales en Guatemala.
 
-## Objetivo
-Centralizar cálculos eléctricos, proyectos, inspecciones, pruebas, termografía, presupuestos y generación de informes técnicos.
+## Aplicación web de cálculos
+La versión web inicial incluye:
+- Cálculo de corriente, kW y kVA en sistemas monofásicos y trifásicos.
+- Evaluación de ampacidad mediante factores de corrección ingresados por el usuario.
+- Cálculo de caída de tensión con resistencia y reactancia del circuito.
+- Evaluación preliminar de interruptores, ampacidad y capacidad interruptiva.
 
-## Arquitectura prevista
-- Android: Kotlin y Jetpack Compose.
-- Arquitectura: MVVM y Clean Architecture.
-- Persistencia local: Room/SQLite.
-- Backend y sincronización: Supabase (PostgreSQL, Auth y Storage).
-- Integración continua: GitHub Actions.
+La interfaz está disponible como sitio estático y se puede instalar como acceso directo desde el navegador del teléfono.
 
-## Normativa
-NEC como referencia principal, complementada según el módulo y la jurisdicción aplicable por IEEE, IEC, ANSI/NETA y normativa guatemalteca vigente.
+## Publicación
+El despliegue está automatizado con GitHub Actions. En GitHub, habilitar **Settings → Pages → Build and deployment → Source: GitHub Actions**. Tras completarse el workflow, la aplicación estará en:
+https://bgarciagomez23-bit.github.io/ElectroPro-GT/
 
-## Estado del proyecto
-Repositorio base de ElectroPro GT. Los módulos de cálculo deberán implementarse y validarse individualmente antes de utilizarse en diseños o instalaciones reales. Cada referencia normativa debe indicar edición y sección aplicable.
+## Aplicación Android
+El repositorio también conserva la base Android prevista con Kotlin y Jetpack Compose, MVVM, Room/SQLite y sincronización futura.
 
-## Seguridad
-No incluir claves privadas ni claves service-role en la aplicación Android. Aplicar Row Level Security en Supabase y mantener revisión y aprobación profesional de los resultados técnicos.
+## Normativa y seguridad
+NEC como referencia principal; IEEE, IEC, ANSI/NETA y normativa guatemalteca como referencias complementarias según corresponda. Los resultados de esta versión son cálculos de apoyo y no certifican cumplimiento normativo. Verificar edición adoptada, artículos y tablas aplicables, método de instalación, temperatura, agrupamiento, terminales, cortocircuito y datos reales del equipo antes de aprobar diseños.
+
+No se incluye selección automática de calibre por tabla normativa ni dictamen de cumplimiento. La ampacidad base y los parámetros R/X deben ser ingresados y verificados por el profesional responsable.
