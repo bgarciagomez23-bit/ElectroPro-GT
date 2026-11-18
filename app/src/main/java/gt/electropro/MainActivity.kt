@@ -70,7 +70,9 @@ fun ElectroProApp() {
                 AmpacityScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Protecciones" || selected == "Protección general") {
                 ProtectionScreen(onBack = { selected = "Inicio" })
-            } else if (selected == "Canalización") {\n                ConduitScreen(onBack = { selected = "Inicio" })\n            } else if (selected == "Puesta a tierra") {
+            } else if (selected == "Canalización") {
+                ConduitScreen(onBack = { selected = "Inicio" })
+            } else if (selected == "Puesta a tierra") {
                 GroundingScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Transformadores") {
                 TransformerScreen(onBack = { selected = "Inicio" })
@@ -93,7 +95,8 @@ fun ElectroProApp() {
                 Text("Ingeniería eléctrica", fontSize = 27.sp, fontWeight = FontWeight.Bold)
                 Text("Herramientas técnicas para proyectos eléctricos", color = Color.LightGray, fontSize = 13.sp)
                 Spacer(Modifier.height(20.dp))
-                Spacer(Modifier.height(18.dp))\n                LazyVerticalGrid(
+                Spacer(Modifier.height(18.dp))
+                LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
