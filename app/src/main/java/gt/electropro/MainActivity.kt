@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -130,7 +131,7 @@ private fun ConduitScreen(onBack: () -> Unit) {
     var allowable by remember { mutableStateOf("40") }
     var result by remember { mutableStateOf<String?>(null) }
     Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("‹  Volver", color = Accent, modifier = Modifier.padding(vertical = 4.dp))
+        Text("‹  Volver", color = Accent, modifier = Modifier.clickable { onBack() }.padding(vertical = 4.dp))
         Text("Canalización", fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Text("Evaluación preliminar de ocupación de tubería EMT, IMC, RMC o PVC.", color = Muted)
         @Composable fun field(label: String, value: String, onValue: (String) -> Unit) {
