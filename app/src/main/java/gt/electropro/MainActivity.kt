@@ -61,15 +61,15 @@ fun ElectroProApp() {
                 }
             }
         ) { padding ->
-            if (selected == "Cálculos eléctricos") {
+            if (selected == "Cálculos eléctricos" || selected == "Potencia & corriente") {
                 ElectricalCalculatorScreen(onBack = { selected = "Inicio" })
-            } else if (selected == "Conductores") {
+            } else if (selected == "Conductores" || selected == "Caída de tensión") {
                 VoltageDropScreen(onBack = { selected = "Inicio" })
-            } else if (selected == "Ampacidad") {
+            } else if (selected == "Ampacidad" || selected == "Dimensionar conductor" || selected == "Ampacidad de conductor") {
                 AmpacityScreen(onBack = { selected = "Inicio" })
-            } else if (selected == "Protecciones") {
+            } else if (selected == "Protecciones" || selected == "Protección general") {
                 ProtectionScreen(onBack = { selected = "Inicio" })
-            } else if (selected == "Puesta a tierra") {
+            } else if (selected == "Canalización") {\n                ConduitScreen(onBack = { selected = "Inicio" })\n            } else if (selected == "Puesta a tierra") {
                 GroundingScreen(onBack = { selected = "Inicio" })
             } else if (selected == "Transformadores") {
                 TransformerScreen(onBack = { selected = "Inicio" })
@@ -118,5 +118,39 @@ fun ElectroProApp() {
             }
             }
         }
+    }
+}
+
+
+@Composable
+private fun ConduitScreen(onBack: () -> Unit) {
+    var conductorCount by remember { mutableStateOf("3") }
+    var conductorArea by remember { mutableStateOf("50") }
+    var conduitArea by remember { mutableStateOf("500") }
+    var allowable by remember { mutableStateOf("40") }
+    var result by remember { mutableStateOf<String?>(null) }
+    Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Text("‹  Volver", color = Accent, modifier = Modifier.padding(vertical = 4.dp))
+        Text("Canalización", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text("Evaluación preliminar de ocupación de tubería EMT, IMC, RMC o PVC.", color = Muted)
+        @Composable fun field(label: String, value: String, onValue: (String) -> Unit) {
+            OutlinedTextField(value = value, onValueChange = onValue, label = { Text(label) }, singleLine = true)
+        }
+        field("Cantidad de conductores", conductorCount) { conductorCount = it }
+        field("Área por conductor (mm²)", conductorArea) { conductorArea = it }
+        field("Área interna de canalización (mm²)", conduitArea) { conduitArea = it }
+        field("Límite de ocupación (%)", allowable) { allowable = it }
+        Button(onClick = {
+            val n = conductorCount.toDoubleOrNull()
+            val a = conductorArea.toDoubleOrNull()
+            val c = conduitArea.toDoubleOrNull()
+            val limit = allowable.toDoubleOrNull()
+            result = if (n != null && a != null && c != null && limit != null && n > 0 && a > 0 && c > 0 && limit > 0) {
+                val fill = n * a / c * 100.0
+                "Ocupación: %.2f%% — %s".format(fill, if (fill <= limit) "Dentro del límite ingresado" else "Supera el límite ingresado")
+            } else "Revisa los valores ingresados"
+        }, colors = ButtonDefaults.buttonColors(containerColor = Accent)) { Text("Calcular ocupación", color = Color(0xFF17120A)) }
+        result?.let { Text(it, fontSize = 18.sp, fontWeight = FontWeight.Bold) }
+        Text("Ingresa el área real del conductor y de la canalización, así como el límite aplicable de la norma y edición adoptadas. Esta herramienta no selecciona automáticamente el diámetro.", color = Muted, fontSize = 12.sp)
     }
 }
