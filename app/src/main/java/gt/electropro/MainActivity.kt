@@ -16,9 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val Accent = Color(0xFF37A0D8)
-private val Panel = Color(0xFF1B344E)
-private val AppBg = Color(0xFF0B1724)
+private val Accent = Color(0xFFFFB640)
+private val Panel = Color(0xFF101C24)
+private val AppBg = Color(0xFF080D12)
+private val Muted = Color(0xFFA7B2BA)
+private val Border = Color(0xFF263946)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,22 +35,15 @@ data class ModuleItem(val title: String, val subtitle: String, val symbol: Strin
 fun ElectroProApp() {
     var selected by remember { mutableStateOf("Inicio") }
     val modules = listOf(
-        ModuleItem("Cálculos eléctricos", "Corriente, potencia y demanda", "⚡"),
-        ModuleItem("Conductores", "Caída de tensión", "〰"),
-        ModuleItem("Ampacidad", "Corrección y ajuste de conductores", "A"),
-        ModuleItem("Protecciones", "Breaker y capacidad interruptiva", "▣"),
-        ModuleItem("Puesta a tierra", "Resistividad y conductor", "⌁"),
-        ModuleItem("Transformadores", "Capacidad y cortocircuito", "◈"),
-        ModuleItem("Subestaciones", "Equipos y alimentadores", "▤"),
-        ModuleItem("Inspecciones", "Hallazgos y fotografías", "✓"),
-        ModuleItem("Termografía", "Temperaturas y anomalías", "◉"),
-        ModuleItem("Pruebas eléctricas", "Aislamiento y continuidad", "⌗"),
-        ModuleItem("Presupuestos", "Materiales y cuantificación", "Ｑ"),
-        ModuleItem("Informes", "Memorias PDF y Excel", "▧"),
-        ModuleItem("Proyectos", "Clientes y documentación", "▦")
+        ModuleItem("Potencia & corriente", "AC monofásica, trifásica y DC", "ϟ"),
+        ModuleItem("Dimensionar conductor", "Ampacidad con correcciones", "∿"),
+        ModuleItem("Caída de tensión", "Longitud, calibre y material", "⌁"),
+        ModuleItem("Protección general", "Carga continua/no continua", "⬟"),
+        ModuleItem("Canalización", "EMT, IMC, RMC y PVC", "◯"),
+        ModuleItem("Ampacidad de conductor", "Capacidad según calibre y material", "▦")
     )
     MaterialTheme(colorScheme = darkColorScheme(
-        primary = Accent, background = AppBg, surface = Color(0xFF10243A),
+        primary = Accent, background = AppBg, surface = Panel,
         onPrimary = Color.White, onBackground = Color.White, onSurface = Color.White
     )) {
         Scaffold(
@@ -97,19 +92,7 @@ fun ElectroProApp() {
                 Text("Ingeniería eléctrica", fontSize = 27.sp, fontWeight = FontWeight.Bold)
                 Text("Herramientas técnicas para proyectos eléctricos", color = Color.LightGray, fontSize = 13.sp)
                 Spacer(Modifier.height(20.dp))
-                Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(18.dp)) {
-                    Column(Modifier.padding(18.dp)) {
-                        Text("Centro de ingeniería", color = Color.LightGray, fontSize = 13.sp)
-                        Text("Bienvenido a ElectroPro GT", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(6.dp))
-                        Text("Trabaja localmente y sincroniza tus proyectos cuando tengas conexión.",
-                            color = Color(0xFFCFD9E4), fontSize = 12.sp)
-                    }
-                }
-                Spacer(Modifier.height(18.dp))
-                Text("MÓDULOS", color = Accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(10.dp))
-                LazyVerticalGrid(
+                Spacer(Modifier.height(18.dp))\n                LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
